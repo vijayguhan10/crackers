@@ -1,9 +1,15 @@
 import React from "react";
+import DashboardIndex from "./Dashboard/index";
+import InitialRouter from "./Router/InitialRouter";
+import Sidebar from "./components/Sidebar";
 
 const App = () => {
   return (
-    <div>
-      <h1 className="text-4xl">Welcome to crackers shoop</h1>
+    <div className="font-Comfortaa w-full flex">
+      <Sidebar />
+      <div className="flex-1">
+        <InitialRouter />
+      </div>
     </div>
   );
 };

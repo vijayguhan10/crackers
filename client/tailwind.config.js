@@ -2,7 +2,12 @@
 module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        pacifico: ["Red+Hat+Display", "cursive"],
+        Comfortaa: ["Comfortaa", "cursive"],
+      },
+    },
   },
   plugins: [],
 };

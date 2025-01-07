@@ -7,10 +7,11 @@ import StockTable from "../stocks/StockTable";
 import CustomerData from "../customer/index";
 import GiftIndex from "../Gift/GiftIndex";
 import UserSettings from "../Settings/UserIndex";
+import Signup from "../components/Signup";
 const InitialRouter = () => {
   return (
     <Routes>
-      <Route path="/" element={<Dashboard />} />
+      <Route path="/" element={<Signup />} />
       <Route path="/History" element={<CustomerHistory />} />
       <Route path="/billing" element={<Billing />} />
       <Route path="/stocks" element={<StockTable />} />

@@ -6,7 +6,7 @@ import Sidebar from "./components/Sidebar";
 const App = () => {
   return (
     <div className="font-Comfortaa w-full flex">
-      <Sidebar />
+      {/* <Sidebar /> */}
       <div className="flex-1">
         <InitialRouter />
       </div>

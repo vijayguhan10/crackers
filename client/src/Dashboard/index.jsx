@@ -46,11 +46,7 @@ function App() {
             <Menu className="w-6 h-6" />
           </button>
           <div className="flex-1 ml-4 md:ml-0">
-            <input
-              type="search"
-              placeholder="Search"
-              className="w-full max-w-md px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            />
+            <h1 className="text-4xl">Welcome Vijay Guhan</h1>
           </div>
         </div>
 

@@ -25,7 +25,7 @@ const Sidebar = () => {
     },
     { icon: <Package className="w-5 h-5" />, label: "Stocks", to: "/stocks" },
     { icon: <Users className="w-5 h-5" />, label: "Customer", to: "/customer" },
-    { icon: <History className="w-5 h-5" />, label: "History", to: "/history" },
+    { icon: <History className="w-5 h-5" />, label: "History", to: "/History" },
   ];
 
   return (

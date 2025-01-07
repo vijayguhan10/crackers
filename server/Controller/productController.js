@@ -31,7 +31,7 @@ exports.addProduct = async (req, res) => {
 
 exports.getAllProducts = async (req, res) => {
   try {
-    const db = req.db || (await getDatabaseConnection(req.user?.databaseName));
+    const db = req.db;
     const ProductModel = getProductModel(db);
 
     const products = await ProductModel.find({ active: true });

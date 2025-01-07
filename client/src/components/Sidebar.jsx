@@ -7,6 +7,7 @@ import {
   History,
   Settings,
   LogOut,
+  GiftIcon,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -20,12 +21,13 @@ const Sidebar = () => {
     },
     {
       icon: <FileText className="w-5 h-5" />,
-      label: "Invoice",
+      label: "Billing",
       to: "/billing",
     },
     { icon: <Package className="w-5 h-5" />, label: "Stocks", to: "/stocks" },
     { icon: <Users className="w-5 h-5" />, label: "Customer", to: "/customer" },
     { icon: <History className="w-5 h-5" />, label: "History", to: "/History" },
+    { icon: <GiftIcon className="w-5 h-5" />, label: "Gift", to: "/gift" },
   ];
 
   return (
@@ -62,7 +64,7 @@ const Sidebar = () => {
           <span>SETTINGS</span>
         </Link>
         <Link
-          to="/logout"
+          to="/createcustomer"
           className="flex items-center space-x-3 p-3 hover:bg-white/5 rounded-lg"
         >
           <LogOut className="w-5 h-5" />

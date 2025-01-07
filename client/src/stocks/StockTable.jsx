@@ -103,7 +103,7 @@ function StockTable() {
                     Stock
                   </th>
                   <th className="p-4 text-center border border-gray-800">
-                    Total Revenue
+                    Price{" "}
                   </th>
                 </tr>
               </thead>
@@ -147,12 +147,12 @@ function StockTable() {
               background-color: #f4f4f4;
             }
             .custom-scrollbar::-webkit-scrollbar-thumb {
-              background-color: #4a5568; 
-              border-radius: 10px; 
+              background-color: #4a5568;
+              border-radius: 10px;
               border: 3px solid #f4f4f4;
             }
             .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-              background-color: #2d3748; 
+              background-color: #2d3748;
             }
           `}</style>
         </div>

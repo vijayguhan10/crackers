@@ -208,8 +208,25 @@ function TotalTransactions() {
         <div className="">
           <div className="flex items-center gap-4 mb-6">
             <h2 className="text-2xl font-bold flex items-center gap-2">
-              📝 Total Transactions
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="lucide lucide-wallet-cards"
+              >
+                <rect width="18" height="18" x="3" y="3" rx="2" />
+                <path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2" />
+                <path d="M3 11h3c.8 0 1.6.3 2.1.9l1.1.9c1.6 1.6 4.1 1.6 5.7 0l1.1-.9c.5-.5 1.3-.9 2.1-.9H21" />
+              </svg>
+              Total Transactions
             </h2>
+
             <div className="flex-1">
               <input
                 type="text"
@@ -227,7 +244,9 @@ function TotalTransactions() {
                 id="month"
                 className="bg-[#6be196] text-black px-4 py-2 rounded-lg hover:bg-[#4ADE80] focus:outline-none focus:ring-2 focus:ring-green-400"
               >
-                <option value="" >-- Choose Month --</option>
+                <option value="" className="text-black">
+                  -- Choose Month --
+                </option>
                 <option value="January">January</option>
                 <option value="February">February</option>
                 <option value="March">March</option>

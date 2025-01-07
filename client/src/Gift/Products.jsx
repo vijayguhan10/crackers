@@ -1,7 +1,8 @@
 import { useState } from "react";
-import Endcart from "./EndCart";
+import FinalGift from "./FinalGift";
 import Header from "../components/Header";
-function App() {
+import { Gift } from "lucide-react";
+function GiftProducts() {
   const [cart, setCart] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [discount, setDiscount] = useState(50);
@@ -50,15 +51,12 @@ function App() {
   const grandTotal = total * (1 - discount / 100);
 
   return (
-    <div className="min-h-screen bg-gray-50 ml-[16.7%]">
-      <Header/>
-
+    <div className=" bg-gray-50 ">
       <div className="container mx-auto p-4 flex flex-col lg:flex-row gap-6">
-        {/* Billing Section */}
         <div className="lg:w-2/3">
           <div className="flex items-center gap-4 mb-6">
             <h2 className="text-2xl font-bold flex items-center gap-2">
-              📝 BILLING
+              <Gift /> Add Gifts
             </h2>
             <div className="flex-1">
               <input
@@ -69,9 +67,7 @@ function App() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <button className="bg-[#6be196] text-white px-4 py-2 rounded-lg hover:bg-[#4ADE80]">
-              + Add Crackers
-            </button>
+          
           </div>
 
           <div className="bg-white rounded-lg shadow overflow-x-auto">
@@ -126,7 +122,7 @@ function App() {
             </table>
           </div>
         </div>
-        <Endcart
+        <FinalGift
           cart={cart}
           total={total}
           grandTotal={grandTotal}
@@ -140,4 +136,4 @@ function App() {
   );
 }
 
-export default App;
+export default GiftProducts;

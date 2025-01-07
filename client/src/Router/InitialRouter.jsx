@@ -5,6 +5,7 @@ import Billing from "../cart/Productdata";
 import CustomerHistory from "../History/CustomerHistory";
 import StockTable from "../stocks/StockTable";
 import CustomerData from "../customer/index";
+import GiftIndex from "../Gift/GiftIndex";
 import UserSettings from "../Settings/UserIndex";
 const InitialRouter = () => {
   return (
@@ -15,6 +16,7 @@ const InitialRouter = () => {
       <Route path="/stocks" element={<StockTable />} />
       <Route path="/customer" element={<CustomerData />} />
       <Route path="/settings" element={<UserSettings />} />
+      <Route path="/gift" element={<GiftIndex />} />
     </Routes>
   );
 };

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import CustomerCard from "./CustomerCard";
 import CustomerData from "./customer.json";
-
+import CreateCustomer from "./CreateCustomer";
 function Index() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -33,10 +33,12 @@ function Index() {
     <div className="ml-[16.7%] bg-gray-100 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            Customer Dashboard
-          </h1>
-
+          <div className="flex flex-row justify-between">
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">
+              Customer Dashboard
+            </h1>
+            <CreateCustomer />
+          </div>
           <div className="flex flex-col sm:flex-row gap-4">
             <input
               type="text"
@@ -60,10 +62,7 @@ function Index() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCustomers.map((customer) => (
-            <div
-              key={customer.id}
-              className="bg-white p-4 rounded-lg "
-            >
+            <div key={customer.id} className="bg-white p-4 rounded-lg ">
               <CustomerCard customer={customer} />
               <button
                 onClick={() => handleStatusToggle(customer.id)}

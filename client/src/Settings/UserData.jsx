@@ -65,7 +65,7 @@ const UserData = () => {
             </button>
           </div>
         </div>
-        <div className="ml-[14%]">
+        <div className="ml-[23%]">
           <TotalTransactions />
         </div>
       </div>

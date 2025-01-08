@@ -12,6 +12,7 @@ const InitialRouter = () => {
   return (
     <Routes>
       <Route path="/" element={<Signup />} />
+      <Route path="/dashboard" element={<Dashboard/>} />
       <Route path="/History" element={<CustomerHistory />} />
       <Route path="/billing" element={<Billing />} />
       <Route path="/stocks" element={<StockTable />} />

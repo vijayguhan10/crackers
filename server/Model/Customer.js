@@ -13,7 +13,8 @@ const customerSchema = new mongoose.Schema({
       id: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
       invoicepdf: { type: String }
     }
-  ]
+  ],
+  status: { type: Boolean, default: true }
 });
 
 module.exports = customerSchema;

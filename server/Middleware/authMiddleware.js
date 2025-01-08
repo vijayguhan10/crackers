@@ -6,7 +6,6 @@ const JWT_SECRET = process.env.JWT_SECRET || 'abcdefg!@$$@%^&%sdds/ffg';
 
 const dbMiddleware = async (req, res, next) => {
   try {
-    // Step 1: Extract and verify token
     const token = req.header('Authorization').replace('Bearer ', '');
     const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded;
@@ -31,7 +30,7 @@ const dbMiddleware = async (req, res, next) => {
       const subAdminDetails = subAdmin.subadmindetails.find(
         (sa) => sa.email === decoded.email
       );
-      if (!subAdminDetails || !subAdminDetails.active) {
+      if (!subAdminDetails || !subAdminDetails.status) {
         return res
           .status(403)
           .json({ message: 'Subadmin or company is deactivated.' });

@@ -179,7 +179,6 @@ exports.placeOrder = async (req, res) => {
 
     const cumulativeAmount = overallSum - totalDiscount + tax;
 
-    // Create order
     const order = new Order({
       customer: customer._id,
       cartitems: orderCartItems,
@@ -191,7 +190,6 @@ exports.placeOrder = async (req, res) => {
 
     const savedOrder = await order.save();
 
-    // Generate PDF
     const companyDetails = await Company.findOne({});
     if (!companyDetails) {
       return res.status(500).json({ message: 'Company details not found' });

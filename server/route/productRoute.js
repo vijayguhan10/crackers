@@ -10,13 +10,14 @@ const router = express.Router();
 
 router.route('/add').post(authMiddleware, productController.addProduct);
 router.route('/').get(authMiddleware, productController.getAllProducts);
-router.route('/:id').get(authMiddleware, productController.getProductDetails);
 router
-  .route('/update/:id')
-  .patch(authMiddleware, productController.updateProduct);
+  .route('/single')
+  .get(authMiddleware, productController.getProductDetails);
+router.route('/update').patch(authMiddleware, productController.updateProduct);
+router.route('/delete').put(authMiddleware, productController.deleteProduct);
 router
-  .route('/delete/:id')
-  .delete(authMiddleware, productController.deleteProduct);
+  .route('/inactive')
+  .get(authMiddleware, productController.getInactiveProducts);
 
 router.route('/add').post(authMiddleware, productController.addProduct);
 

@@ -35,7 +35,7 @@ exports.getAllProducts = async (req, res) => {
     const db = req.db;
     const ProductModel = getProductModel(db);
 
-    const products = await ProductModel.find({ active: true });
+    const products = await ProductModel.find({ status: true });
     res.status(200).json(products);
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -50,9 +50,12 @@ exports.getProductDetails = async (req, res) => {
     const db = req.db || (await getDatabaseConnection(req.user?.databaseName));
     const ProductModel = getProductModel(db);
 
+    if (!req.body.id) {
+      return res.status(400).json({ message: 'ID not sent in the request' });
+    }
     const product = await ProductModel.findOne({
-      _id: req.params.id,
-      active: true
+      _id: req.body.id,
+      status: true
     });
     if (!product) {
       return res.status(404).json({ message: 'Product not found or inactive' });
@@ -72,33 +75,45 @@ exports.updateProduct = async (req, res) => {
     const db = req.db || (await getDatabaseConnection(req.user?.databaseName));
     const ProductModel = getProductModel(db);
 
-    const product = await ProductModel.findById(req.params.id);
+    // Extracting product ID from req.body
+    const { id, ...updateData } = req.body;
 
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
+    if (!id) {
+      return res.status(400).json({ message: 'Product ID is required.' });
     }
 
-    if (!product.active && !req.body.active) {
+    const product = await ProductModel.findById(id);
+
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found.' });
+    }
+
+    if (!product.status && !updateData.status) {
       return res.status(400).json({
         message:
           'Inactive products can only be reactivated by setting active to true.'
       });
     }
-    const updatedProduct = await ProductModel.findOneAndUpdate(
-      { _id: req.params.id },
-      req.body,
+
+    const updatedProduct = await ProductModel.findByIdAndUpdate(
+      id,
+      updateData,
       { new: true, runValidators: true }
     );
 
+    if (!updatedProduct) {
+      return res.status(400).json({ message: 'Failed to update product.' });
+    }
+
     res.status(200).json({
-      message: 'Product updated successfully',
+      message: 'Product updated successfully.',
       product: updatedProduct
     });
   } catch (error) {
     console.error('Error updating product:', error);
     res
       .status(500)
-      .json({ message: 'Error updating product', error: error.message });
+      .json({ message: 'Error updating product.', error: error.message });
   }
 };
 
@@ -106,17 +121,22 @@ exports.deleteProduct = async (req, res) => {
   try {
     const db = req.db || (await getDatabaseConnection(req.user?.databaseName));
     const ProductModel = getProductModel(db);
-    const product = await ProductModel.findById(req.params.id);
+
+    if (!req.body.id) {
+      return res.status(400).json({ message: 'ID not sent in the request' });
+    }
+
+    const product = await ProductModel.findById(req.body.id);
 
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    if (!product.active) {
+    if (!product.status) {
       return res.status(400).json({ message: 'Product is already deleted' });
     }
 
-    product.active = false;
+    product.status = false;
     const updatedProduct = await product.save();
 
     res.status(200).json({
@@ -131,33 +151,6 @@ exports.deleteProduct = async (req, res) => {
   }
 };
 
-// exports.createBulkProducts = async (req, res) => {
-//   const { productnames, dbname } = req.body;
-
-//   if (req.user.role !== 'superadmin') {
-//     return res
-//       .status(400)
-//       .json({ message: 'Unauthorized to create sub-admins.' });
-//   }
-
-//   if (!productnames || !Array.isArray(productnames) || !dbname) {
-//     return res.status(400).json({ message: 'Invalid request body' });
-//   }
-
-//   try {
-//     const db = await getDatabaseConnection(dbname);
-//     const Product = getProductModel(db);
-//     const products = productnames.map((name) => ({ name }));
-//     const createdProducts = await Product.insertMany(products);
-
-//     res.status(201).json({
-//       message: 'Products created successfully',
-//       products: createdProducts
-//     });
-//   } catch (error) {
-//     res.status(500).json({ message: 'Error creating products', error });
-//   }
-// };
 exports.createBulkProducts = async (req, res) => {
   if (req.user.role !== 'subadmin') {
     return res.status(403).json({ message: 'Unauthorized' });
@@ -199,5 +192,20 @@ exports.createBulkProducts = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: 'Error creating products', error });
+  }
+};
+
+exports.getInactiveProducts = async (req, res) => {
+  try {
+    const db = req.db;
+    const ProductModel = getProductModel(db);
+
+    const products = await ProductModel.find({ status: false });
+    res.status(200).json(products);
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    res
+      .status(500)
+      .json({ message: 'Error fetching products', error: error.message });
   }
 };

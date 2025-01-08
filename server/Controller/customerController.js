@@ -102,12 +102,12 @@ exports.changeActive = async (req, res) => {
       return res.status(400).json({ message: 'Customer not found.' });
     }
 
-    customer.active = !customer.active;
+    customer.status = !customer.status;
     await customer.save();
 
     res.status(200).json({
       message: `Customer status changed to ${
-        customer.active ? 'active' : 'inactive'
+        customer.status ? 'active' : 'inactive'
       }.`,
       customer
     });

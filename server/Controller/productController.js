@@ -35,7 +35,7 @@ exports.getAllProducts = async (req, res) => {
     const db = req.db;
     const ProductModel = getProductModel(db);
 
-    const products = await ProductModel.find({ active: true });
+    const products = await ProductModel.find({ status: true });
     res.status(200).json(products);
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -55,7 +55,7 @@ exports.getProductDetails = async (req, res) => {
     }
     const product = await ProductModel.findOne({
       _id: req.body.id,
-      active: true
+      status: true
     });
     if (!product) {
       return res.status(404).json({ message: 'Product not found or inactive' });
@@ -88,7 +88,7 @@ exports.updateProduct = async (req, res) => {
       return res.status(404).json({ message: 'Product not found.' });
     }
 
-    if (!product.active && !updateData.active) {
+    if (!product.status && !updateData.status) {
       return res.status(400).json({
         message:
           'Inactive products can only be reactivated by setting active to true.'
@@ -132,11 +132,11 @@ exports.deleteProduct = async (req, res) => {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    if (!product.active) {
+    if (!product.status) {
       return res.status(400).json({ message: 'Product is already deleted' });
     }
 
-    product.active = false;
+    product.status = false;
     const updatedProduct = await product.save();
 
     res.status(200).json({
@@ -200,7 +200,7 @@ exports.getInactiveProducts = async (req, res) => {
     const db = req.db;
     const ProductModel = getProductModel(db);
 
-    const products = await ProductModel.find({ active: false });
+    const products = await ProductModel.find({ status: false });
     res.status(200).json(products);
   } catch (error) {
     console.error('Error fetching products:', error);

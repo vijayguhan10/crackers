@@ -30,7 +30,7 @@ const dbMiddleware = async (req, res, next) => {
       const subAdminDetails = subAdmin.subadmindetails.find(
         (sa) => sa.email === decoded.email
       );
-      if (!subAdminDetails || !subAdminDetails.active) {
+      if (!subAdminDetails || !subAdminDetails.status) {
         return res
           .status(403)
           .json({ message: 'Subadmin or company is deactivated.' });

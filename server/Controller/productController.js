@@ -19,7 +19,7 @@ exports.addProduct = async (req, res) => {
     const savedProduct = await product.save();
 
     res
-      .status(201)
+      .status(200)
       .json({ message: 'Product added successfully', product: savedProduct });
   } catch (error) {
     console.error('Error adding product:', error);

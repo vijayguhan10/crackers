@@ -15,11 +15,11 @@ exports.placeOrder = async (req, res) => {
   try {
     if (req.user.role !== 'subadmin') {
       return res
-        .status(403)
+        .status(400)
         .json({ message: 'Unauthorized to place an order.' });
     }
 
-    const db = req.db; 
+    const db = req.db;
     const Order = getOrderModel(db);
     const Customer = getCustomerModel(db);
     const Product = getProductModel(db);
@@ -27,7 +27,6 @@ exports.placeOrder = async (req, res) => {
 
     const { customerDetails, cartItems, tax } = req.body;
     const { name, address, phone } = customerDetails;
-
 
     let customer = await Customer.findOne({ phone });
     if (!customer) {
@@ -144,7 +143,7 @@ exports.placeOrder = async (req, res) => {
           message: `Unable to fulfill the requested quantity for product: ${primaryProduct.name}. Not enough stock even with additional items.`
         });
       }
-      
+
       orderCartItems.push({
         product: primaryProduct._id,
         unitprice: primaryProduct.price,
@@ -229,7 +228,7 @@ exports.placeOrder = async (req, res) => {
       throw new Error('Failed to generate or upload the invoice PDF.');
     }
 
-    res.status(201).json({
+    res.status(200).json({
       message: 'Order placed successfully and PDF generated',
       customer: {
         name: customer.name,

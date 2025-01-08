@@ -10,7 +10,7 @@ exports.createCompany = async (req, res) => {
   try {
     if (req.user.role !== 'subadmin') {
       return res
-        .status(403)
+        .status(400)
         .json({ message: 'Unauthorized to perform this action.' });
     }
 
@@ -64,7 +64,7 @@ exports.createCompany = async (req, res) => {
     dbConnection.close();
 
     return res
-      .status(201)
+      .status(200)
       .json({ message: 'Company created successfully.', company });
   } catch (error) {
     return res
@@ -77,7 +77,7 @@ exports.getCompanyById = async (req, res) => {
   try {
     if (req.user.role !== 'subadmin') {
       return res
-        .status(403)
+        .status(400)
         .json({ message: 'Unauthorized to perform this action.' });
     }
 
@@ -111,7 +111,7 @@ exports.updateCompanyById = async (req, res) => {
   try {
     if (req.user.role !== 'subadmin') {
       return res
-        .status(403)
+        .status(400)
         .json({ message: 'Unauthorized to perform this action.' });
     }
 
@@ -151,7 +151,7 @@ exports.deleteCompanyById = async (req, res) => {
   try {
     if (req.user.role !== 'subadmin') {
       return res
-        .status(403)
+        .status(400)
         .json({ message: 'Unauthorized to perform this action.' });
     }
 

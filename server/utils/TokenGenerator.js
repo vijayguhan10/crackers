@@ -3,6 +3,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'abcdefg!@$$@%^&%sdds/ffg';
 
 const generateToken = (user, databaseName = null) => {
   const payload = {
+    name: user.name,
     id: user._id || user.id,
     email: user.email,
     role: user.role,

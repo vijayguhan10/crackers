@@ -7,12 +7,12 @@ const productSchema = new mongoose.Schema({
     unique: true
   },
   price: {
-    type: Number
-    // required: true
+    type: Number,
+    required: true
   },
   stockavailable: {
-    type: Number
-    // required: true
+    type: Number,
+    required: true
   },
   totalsales: {
     type: Number,
@@ -22,24 +22,12 @@ const productSchema = new mongoose.Schema({
     type: Number,
     default: 0.0
   },
-  optionalproduct: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Product'
-    }
-  ],
-  discount: [
-    {
-      minimumpurchase: {
-        type: Number,
-        required: true
-      },
-      discountamount: {
-        type: Number,
-        required: true
-      }
-    }
-  ],
+  // optionalproduct: [
+  //   {
+  //     type: mongoose.Schema.Types.ObjectId,
+  //     ref: 'Product'
+  //   }
+  // ],
   active: {
     type: Boolean,
     default: true

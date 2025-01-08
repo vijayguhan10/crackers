@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const ProductSchema = require('../Model/Product');
+const XLSX = require('xlsx');
 
 const getDatabaseConnection = (databaseName) => {
   const dbLink = process.env.DATABASE.replace('<DATABASE>', databaseName);
@@ -130,25 +131,68 @@ exports.deleteProduct = async (req, res) => {
   }
 };
 
-exports.createBulkProducts = async (req, res) => {
-  const { productnames, dbname } = req.body;
+// exports.createBulkProducts = async (req, res) => {
+//   const { productnames, dbname } = req.body;
 
-  if (req.user.role !== 'superadmin') {
-    return res
-      .status(400)
-      .json({ message: 'Unauthorized to create sub-admins.' });
+//   if (req.user.role !== 'superadmin') {
+//     return res
+//       .status(400)
+//       .json({ message: 'Unauthorized to create sub-admins.' });
+//   }
+
+//   if (!productnames || !Array.isArray(productnames) || !dbname) {
+//     return res.status(400).json({ message: 'Invalid request body' });
+//   }
+
+//   try {
+//     const db = await getDatabaseConnection(dbname);
+//     const Product = getProductModel(db);
+//     const products = productnames.map((name) => ({ name }));
+//     const createdProducts = await Product.insertMany(products);
+
+//     res.status(201).json({
+//       message: 'Products created successfully',
+//       products: createdProducts
+//     });
+//   } catch (error) {
+//     res.status(500).json({ message: 'Error creating products', error });
+//   }
+// };
+exports.createBulkProducts = async (req, res) => {
+  if (req.user.role !== 'subadmin') {
+    return res.status(403).json({ message: 'Unauthorized' });
   }
 
-  if (!productnames || !Array.isArray(productnames) || !dbname) {
-    return res.status(400).json({ message: 'Invalid request body' });
+  if (!req.file) {
+    return res.status(400).json({ message: 'No file uploaded' });
   }
 
   try {
-    const db = await getDatabaseConnection(dbname);
+    // Get the database connection for the subadmin
+    const db = req.db;
     const Product = getProductModel(db);
-    const products = productnames.map((name) => ({ name }));
+
+    // Read and parse the Excel file
+    const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const productsData = XLSX.utils.sheet_to_json(sheet);
+
+    // Prepare product data for insertion
+    const products = productsData.map((row) => {
+      const { name, price, stockavailable } = row;
+
+      // Validate required fields
+      if (!name || !price || !stockavailable) {
+        throw new Error('Missing required fields in Excel file');
+      }
+
+      return { name, price, stockavailable };
+    });
+
+    // Insert products into the database
     const createdProducts = await Product.insertMany(products);
 
+    // Send success response
     res.status(201).json({
       message: 'Products created successfully',
       products: createdProducts

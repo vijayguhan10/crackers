@@ -1,51 +1,53 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
-import axios from "axios";
-import cracker from "../assets/Crackers.png";
-import ACS from "../assets/ACS_full-removebg-preview.png";
-import { ToastContainer, toast } from "react-toastify";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import axios from 'axios';
+import cracker from '../assets/Crackers.png';
+import ACS from '../assets/ACS_full-removebg-preview.png';
+import { ToastContainer, toast } from 'react-toastify';
 function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSignup, setIsSignup] = useState(true);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
   });
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [e.target.name]: e.target.value
     });
   };
 
   const handleSubmit = async () => {
     try {
       if (isSignup) {
-        const response = await axios.post("http://your-api-endpoint/signup", {
+        const response = await axios.post('http://your-api-endpoint/signup', {
           name: formData.name,
           email: formData.email,
           password: formData.password,
-          confirmPassword: formData.confirmPassword,
+          confirmPassword: formData.confirmPassword
         });
-        toast.success("Signup successful!");
+        toast.success('Signup successful!');
       } else {
-        const response = await axios.post("http://localhost:8000/api/userAuth/login", {
-          email: formData.email,
-          password: formData.password,
-        });
-        console.log("Response of the Login : ", response);
-        toast.success("Login successful!");
-
-        navigate("/dashboard");
+        const response = await axios.post(
+          'http://localhost:8000/api/userAuth/login',
+          {
+            email: formData.email,
+            password: formData.password
+          }
+        );
+        console.log('Response of the Login : ', response);
+        toast.success('Login successful!');
+        navigate('/dashboard');
       }
     } catch (error) {
       console.error(error);
-      toast.error("An error occurred. Please try again.");
+      toast.error('An error occurred. Please try again.');
     }
   };
 
@@ -62,12 +64,12 @@ function Signup() {
           <div className="space-y-6">
             <div>
               <h1 className="text-4xl font-bold text-gray-900">
-                {isSignup ? "Sign Up" : "Login"}
+                {isSignup ? 'Sign Up' : 'Login'}
               </h1>
               <p className="text-gray-500 mt-2">
                 {isSignup
-                  ? "Secure Your Communications with Easymail"
-                  : "Welcome Back"}
+                  ? 'Secure Your Communications with Easymail'
+                  : 'Welcome Back'}
               </p>
             </div>
 
@@ -98,7 +100,7 @@ function Signup() {
 
               <div className="relative">
                 <input
-                  type={showPassword ? "text" : "password"}
+                  type={showPassword ? 'text' : 'password'}
                   name="password"
                   placeholder="Password"
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -137,14 +139,14 @@ function Signup() {
                 onClick={handleSubmit}
                 className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300"
               >
-                {isSignup ? "Sign Up" : "Login"}
+                {isSignup ? 'Sign Up' : 'Login'}
               </button>
               <p
                 className="text-center text-gray-600 mt-4 cursor-pointer"
                 onClick={() => setIsSignup(!isSignup)}
               >
                 {isSignup
-                  ? "Already have an account? Login here"
+                  ? 'Already have an account? Login here'
                   : "Don't have an account? Sign up here"}
               </p>
             </div>

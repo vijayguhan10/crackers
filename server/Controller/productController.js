@@ -129,3 +129,31 @@ exports.deleteProduct = async (req, res) => {
       .json({ message: 'Error deleting product', error: error.message });
   }
 };
+
+exports.createBulkProducts = async (req, res) => {
+  const { productnames, dbname } = req.body;
+
+  if (req.user.role !== 'superadmin') {
+    return res
+      .status(400)
+      .json({ message: 'Unauthorized to create sub-admins.' });
+  }
+
+  if (!productnames || !Array.isArray(productnames) || !dbname) {
+    return res.status(400).json({ message: 'Invalid request body' });
+  }
+
+  try {
+    const db = await getDatabaseConnection(dbname);
+    const Product = getProductModel(db);
+    const products = productnames.map((name) => ({ name }));
+    const createdProducts = await Product.insertMany(products);
+
+    res.status(201).json({
+      message: 'Products created successfully',
+      products: createdProducts
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error creating products', error });
+  }
+};

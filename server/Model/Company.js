@@ -60,6 +60,18 @@ const companySchema = new mongoose.Schema({
       type: String,
       required: true
     }
+  },
+  totalrevenue: {
+    type: Number,
+    default: 0
+  },
+  totalinvoices: {
+    type: Number,
+    default: 0
+  },
+  totalcustomers: {
+    type: Number,
+    default: 0
   }
 });
 

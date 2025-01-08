@@ -197,6 +197,10 @@ exports.placeOrder = async (req, res) => {
       return res.status(500).json({ message: 'Company details not found' });
     }
 
+    companyDetails.totalrevenue += cumulativeAmount;
+    companyDetails.totalinvoices += 1;
+    await companyDetails.save();
+
     const pdfParams = {
       companyDetails,
       customerDetails: {

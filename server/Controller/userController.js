@@ -4,13 +4,15 @@ const { encrypt, decrypt } = require('../utils/encryptDecrypt');
 const userSchema = require('../Model/User');
 const User = mongoose.model('User', userSchema);
 const generateToken = require('../utils/TokenGenerator');
+
 const getDbConnection = (databasename) => {
   const dbLink = process.env.DATABASE.replace('<DATABASE>', databasename);
   return mongoose.createConnection(dbLink);
 };
+
 exports.createSubAdmin = async (req, res) => {
   try {
-    const { email, password, databasename } = req.body;
+    const { name, email, password, databasename } = req.body;
 
     if (req.user.role !== 'superadmin') {
       return res
@@ -33,6 +35,7 @@ exports.createSubAdmin = async (req, res) => {
     const subAdminDb = getDbConnection(databasename);
     const SubAdminUser = subAdminDb.model('User', userSchema);
     const subAdmin = new SubAdminUser({
+      name,
       email,
       password: hashedPassword,
       role: 'subadmin',
@@ -44,6 +47,7 @@ exports.createSubAdmin = async (req, res) => {
     const encryptedDbName = JSON.stringify(encrypt(databasename));
 
     superAdmin.subadmindetails.push({
+      name,
       id: subAdmin._id,
       email,
       password: hashedPassword,
@@ -65,7 +69,7 @@ exports.createSubAdmin = async (req, res) => {
 
 exports.signup = async (req, res) => {
   try {
-    const { email, password, role } = req.body;
+    const { name, email, password, role } = req.body;
 
     const isThere = await User.findOne({ role: 'superadmin' });
     if (isThere) {
@@ -84,6 +88,7 @@ exports.signup = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = new User({
+      name,
       email,
       password: hashedPassword,
       role

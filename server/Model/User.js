@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-  username: {
+  name: {
     type: String
   },
   email: {
@@ -26,6 +26,7 @@ const userSchema = new mongoose.Schema({
   },
   subadmindetails: [
     {
+      name: { type: String, required: true },
       id: { type: mongoose.Schema.Types.ObjectId, required: true },
       email: { type: String, required: true },
       password: { type: String, required: true },

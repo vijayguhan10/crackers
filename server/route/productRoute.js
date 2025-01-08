@@ -15,4 +15,10 @@ router
   .route('/delete/:id')
   .delete(authMiddleware, productController.deleteProduct);
 
+router.route('/add').post(authMiddleware, productController.addProduct);
+
+router
+  .route('/bulkadd')
+  .post(authMiddleware, productController.createBulkProducts);
+
 module.exports = router;

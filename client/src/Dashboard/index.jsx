@@ -14,12 +14,11 @@ import RevenueChart from "./RevenueChart";
 import SalesOverview from "./SalesOverview";
 import RecentInvoices from "./RecentInvoices";
 
-function App() {
+function App({ userName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-gray-100">
-
       <div
         className={`fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden ${
           sidebarOpen ? "block" : "hidden"
@@ -46,7 +45,7 @@ function App() {
             <Menu className="w-6 h-6" />
           </button>
           <div className="flex-1 ml-4 md:ml-0">
-            <h1 className="text-4xl">Welcome Vijay Guhan</h1>
+            <h1 className="text-4xl">Welcome {userName}</h1>
           </div>
         </div>
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import CustomerCard from "./CustomerCard";
 import CustomerData from "./customer.json";
+import { Link } from "react-router-dom";
 import CreateCustomer from "./CreateCustomer";
 function Index() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -62,16 +63,17 @@ function Index() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCustomers.map((customer) => (
-            <div key={customer.id} className="bg-white p-4 rounded-lg ">
+            <div
+              key={customer.id}
+              className="bg-white p-4 rounded-lg flex flex-col space-y-4"
+            >
               <CustomerCard customer={customer} />
-              <button
-                onClick={() => handleStatusToggle(customer.id)}
-                className={`mt-4  p-2 rounded-lg ${
-                  customer.status === "Active" ? "bg-red-500" : "bg-green-500"
-                } text-white`}
+              <Link
+                to="/billing"
+                className="mt-auto bg-yellow-400 rounded-lg text-black px-2 w-24 py-2 text-center"
               >
-                {customer.status === "Active" ? "Deactivate" : "Activate"}
-              </button>
+                Billing
+              </Link>
             </div>
           ))}
         </div>

@@ -16,7 +16,7 @@ const Sidebar = () => {
     {
       icon: <LayoutDashboard className="w-5 h-5" />,
       label: "Dashboard",
-      to: "/",
+      to: "/dashboard",
       active: true,
     },
     {

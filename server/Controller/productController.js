@@ -159,6 +159,7 @@ exports.deleteProduct = async (req, res) => {
 //   }
 // };
 exports.createBulkProducts = async (req, res) => {
+  
   if (req.user.role !== 'subadmin') {
     return res.status(403).json({ message: 'Unauthorized' });
   }

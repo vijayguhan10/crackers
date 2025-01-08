@@ -38,6 +38,8 @@ function Signup() {
           email: formData.email,
           password: formData.password,
         });
+        localStorage.setItem("cracker_token",response.data.token)
+
         console.log("Response of the Login : ", response);
         toast.success("Login successful!");
 

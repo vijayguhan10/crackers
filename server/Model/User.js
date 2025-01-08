@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema({
       email: { type: String, required: true },
       password: { type: String, required: true },
       dbname: { type: String, required: true },
-      active: { type: Boolean, default: true }
+      status: { type: Boolean, default: true }
     }
   ],
   created_at: {

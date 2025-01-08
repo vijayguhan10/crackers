@@ -52,7 +52,7 @@ exports.createSubAdmin = async (req, res) => {
       email,
       password: hashedPassword,
       dbname: encryptedDbName,
-      active: true
+      status: true
     });
 
     await superAdmin.save();
@@ -142,7 +142,7 @@ exports.login = async (req, res) => {
         (subAdmin) => subAdmin.email === email
       );
 
-      if (!subAdminDetail || subAdminDetail.active === false) {
+      if (!subAdminDetail || subAdminDetail.status === false) {
         return res
           .status(404)
           .json({ message: 'Sub-admin details not found.' });

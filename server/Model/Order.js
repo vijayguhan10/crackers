@@ -3,34 +3,27 @@ const mongoose = require('mongoose');
 const orderSchema = new mongoose.Schema({
   customer: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true
+    required: true,
+    ref: 'Customer'
   },
   cartitems: [
     {
-      product: {
+      productId: {
         type: mongoose.Schema.Types.ObjectId,
-        required: true
+        required: true,
+        ref: 'Product'
       },
-      unitprice: { type: Number, required: true },
-      quantity: { type: Number, required: true },
-      total: { type: Number, required: true },
-      additionalproducts: [
-        {
-          product: {
-            type: mongoose.Schema.Types.ObjectId,
-            required: true
-          },
-          unitprice: { type: Number, required: true },
-          quantity: { type: Number, required: true },
-          total: { type: Number, required: true }
-        }
-      ]
+      quantity: { type: Number, required: true }
     }
   ],
-  overallsum: { type: Number, required: true },
-  tax: { type: Number, required: true },
+  gst: {
+    status: { type: Boolean, required: true },
+    percentage: { type: Number },
+    amount: { type: Number }
+  },
   discount: { type: Number, required: true },
-  cumulativeamount: { type: Number, required: true },
+  total: { type: Number, required: true },
+  grandtotal: { type: Number, required: true },
   invoicepdf: { type: String },
   createdat: { type: Date, default: Date.now }
 });

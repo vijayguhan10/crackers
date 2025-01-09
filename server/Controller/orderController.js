@@ -22,223 +22,113 @@ exports.placeOrder = async (req, res) => {
     const db = req.db;
     const Order = getOrderModel(db);
     const Customer = getCustomerModel(db);
-    const Product = getProductModel(db);
     const Company = getCompanyModel(db);
+    const Product = getProductModel(db);
 
-    const { customerDetails, cartItems, tax } = req.body;
-    const { name, address, phone } = customerDetails;
-
-    let customer = await Customer.findOne({ phone });
-    if (!customer) {
-      customer = new Customer({ name, address, phone });
-      customer = await customer.save();
+    const company = await Company.findOne();
+    if (!company) {
+      return res.status(404).json({ message: 'Company details not found' });
     }
 
-    let overallSum = 0;
-    let totalDiscount = 0;
-    const orderCartItems = [];
-    const pdfCartItems = [];
+    const { id, products, discount, total, grandtotal, gst } = req.body;
 
-    for (const item of cartItems) {
-      let quantityNeeded = item.quantity;
-      const primaryProduct = await Product.findById(item.product);
+    const customer = await Customer.findById(id);
+    if (!customer) {
+      return res.status(404).json({ message: 'Customer not found' });
+    }
 
-      if (!primaryProduct) {
+    const cartItems = [];
+
+    for (const item of products) {
+      const { productId, quantity } = item;
+
+      const product = await Product.findById(productId);
+      if (!product) {
         return res
           .status(404)
-          .json({ message: `Product not found: ${item.product}` });
+          .json({ message: `Product not found: ${productId}` });
       }
 
-      if (
-        primaryProduct.stockavailable === 0 &&
-        !primaryProduct.optionalproduct?.length
-      ) {
+      if (product.stockavailable < quantity) {
         return res.status(400).json({
-          message: `Insufficient stock and no additional items for product: ${primaryProduct.name}`
+          message: `Insufficient stock for product: ${product.name}`
         });
       }
 
-      let fulfilledQuantity = 0;
-      let itemTotal = 0;
-      let additionalItemsUsed = [];
-      let itemDiscount = 0;
+      const itemTotal = quantity * product.price;
+      product.stockavailable -= quantity;
+      product.totalsales += quantity;
+      product.totalrevenue += itemTotal;
+      await product.save();
 
-      if (primaryProduct.stockavailable > 0) {
-        const quantityFromPrimary = Math.min(
-          quantityNeeded,
-          primaryProduct.stockavailable
-        );
-        fulfilledQuantity += quantityFromPrimary;
-
-        const primaryItemTotal = quantityFromPrimary * primaryProduct.price;
-        itemTotal += primaryItemTotal;
-
-        const primaryDiscount = primaryProduct.discount
-          .filter((d) => primaryItemTotal >= d.minimumpurchase)
-          .reduce(
-            (max, current) =>
-              current.discountamount > max.discountamount ? current : max,
-            {
-              discountamount: 0
-            }
-          );
-
-        itemDiscount = primaryDiscount.discountamount || 0;
-
-        primaryProduct.stockavailable -= quantityFromPrimary;
-        primaryProduct.totalsales += quantityFromPrimary;
-        primaryProduct.totalrevenue +=
-          quantityFromPrimary * primaryProduct.price;
-        quantityNeeded -= quantityFromPrimary;
-
-        await primaryProduct.save();
-      }
-
-      for (const additionalItemId of primaryProduct.optionalproduct || []) {
-        if (quantityNeeded <= 0) break;
-
-        const additionalProduct = await Product.findById(additionalItemId);
-        if (!additionalProduct || additionalProduct.stockavailable <= 0)
-          continue;
-
-        const quantityFromAdditional = Math.min(
-          quantityNeeded,
-          additionalProduct.stockavailable
-        );
-
-        const additionalItemTotal =
-          quantityFromAdditional * additionalProduct.price;
-        itemTotal += additionalItemTotal;
-
-        const additionalDiscount = additionalProduct.discount
-          .filter((d) => additionalItemTotal >= d.minimumpurchase)
-          .reduce(
-            (max, current) =>
-              current.discountamount > max.discountamount ? current : max,
-            {
-              discountamount: 0
-            }
-          );
-
-        const additionalItemDiscount = additionalDiscount.discountamount || 0;
-        itemDiscount += additionalItemDiscount || 0;
-
-        additionalItemsUsed.push({
-          product: additionalProduct._id,
-          unitprice: additionalProduct.price,
-          quantity: quantityFromAdditional,
-          total: additionalItemTotal
-        });
-
-        quantityNeeded -= quantityFromAdditional;
-        additionalProduct.stockavailable -= quantityFromAdditional;
-        additionalProduct.totalsales += quantityFromAdditional;
-        additionalProduct.totalrevenue += additionalItemTotal;
-
-        await additionalProduct.save();
-      }
-
-      if (quantityNeeded > 0) {
-        return res.status(400).json({
-          message: `Unable to fulfill the requested quantity for product: ${primaryProduct.name}. Not enough stock even with additional items.`
-        });
-      }
-
-      orderCartItems.push({
-        product: primaryProduct._id,
-        unitprice: primaryProduct.price,
-        quantity: fulfilledQuantity,
-        total: itemTotal,
-        additionalproducts: additionalItemsUsed
+      cartItems.push({
+        id: product._id,
+        image: product.image,
+        name: product.name,
+        unitprice: product.price,
+        quantity: quantity,
+        total: itemTotal
       });
-
-      const additionalProductsForPdf = [];
-      for (const additionalItem of additionalItemsUsed) {
-        const additionalProductDetails = await Product.findById(
-          additionalItem.product
-        );
-        additionalProductsForPdf.push({
-          description: additionalProductDetails?.name,
-          unitprice: additionalItem.unitprice,
-          quantity: additionalItem.quantity,
-          total: additionalItem.total
-        });
-      }
-
-      pdfCartItems.push({
-        description: primaryProduct.name,
-        unitprice: primaryProduct.price,
-        quantity: fulfilledQuantity,
-        total: itemTotal,
-        additionalproducts: additionalProductsForPdf
-      });
-
-      totalDiscount += itemDiscount;
-      overallSum += itemTotal;
     }
-
-    const cumulativeAmount = overallSum - totalDiscount + tax;
 
     const order = new Order({
       customer: customer._id,
-      cartitems: orderCartItems,
-      overallsum: overallSum,
-      tax,
-      discount: totalDiscount,
-      cumulativeamount: cumulativeAmount
+      cartitems: products,
+      discount: discount,
+      total: total,
+      grandtotal: grandtotal,
+      gst: {
+        status: gst.status,
+        percentage: gst.status ? gst.percentage : null,
+        amount: gst.status ? gst.amount : null
+      }
     });
 
     const savedOrder = await order.save();
+    // console.log(savedOrder);
 
-    const companyDetails = await Company.findOne({});
-    if (!companyDetails) {
-      return res.status(500).json({ message: 'Company details not found' });
-    }
+    customer.orders.push({
+      id: savedOrder._id,
+      grandtotal: grandtotal
+    });
+    await customer.save();
 
-    companyDetails.totalrevenue += cumulativeAmount;
-    companyDetails.totalinvoices += 1;
-    await companyDetails.save();
+    const orderDetails = {
+      cartitems: cartItems,
+      discount: order.discount,
+      total: order.total,
+      grandtotal: order.grandtotal,
+      gst: order.gst
+    };
 
     const pdfParams = {
-      companyDetails,
-      customerDetails: {
-        name: customer.name,
-        address: customer.address,
-        phone: customer.phone
-      },
-      orderDetails: {
-        cartItems: pdfCartItems,
-        overallsum: overallSum,
-        tax,
-        discount: totalDiscount,
-        total: cumulativeAmount,
-        createdat: savedOrder.createdat
-      }
+      companyDetails: company,
+      customerDetails: customer,
+      orderDetails
     };
 
     try {
       await generatePDF(pdfParams);
+
       const url = await uploadPDFToCloudinary(
         './invoice.pdf',
-        companyDetails.companyname,
+        company.name,
         customer.name
       );
+
       savedOrder.invoicepdf = url;
-      customer.orders.push({ id: savedOrder._id, invoicepdf: url });
-      await Promise.all([savedOrder.save(), customer.save()]);
+      await savedOrder.save();
+
+      customer.orders.find((o) => o.id.equals(savedOrder._id)).invoicepdf = url;
+      await customer.save();
+
+      res.status(200).json({
+        message: 'Order placed successfully and PDF generated',
+        invoiceurl: savedOrder.invoicepdf
+      });
     } catch (error) {
       throw new Error('Failed to generate or upload the invoice PDF.');
     }
-
-    res.status(200).json({
-      message: 'Order placed successfully and PDF generated',
-      customer: {
-        name: customer.name,
-        address: customer.address,
-        phone: customer.phone
-      },
-      order: savedOrder
-    });
   } catch (error) {
     console.error('Error placing order:', error);
     res

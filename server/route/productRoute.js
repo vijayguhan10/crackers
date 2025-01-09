@@ -16,8 +16,8 @@ router
 router.route('/update').patch(authMiddleware, productController.updateProduct);
 router.route('/delete').put(authMiddleware, productController.deleteProduct);
 router
-  .route('/inactive')
-  .get(authMiddleware, productController.getInactiveProducts);
+  .route('/active')
+  .get(authMiddleware, productController.getActiveProducts);
 
 router.route('/add').post(authMiddleware, productController.addProduct);
 

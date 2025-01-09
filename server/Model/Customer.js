@@ -12,7 +12,8 @@ const customerSchema = new mongoose.Schema({
     {
       id: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
       grandtotal: { type: Number, required: true },
-      invoicepdf: { type: String }
+      invoicepdf: { type: String },
+      createdat: { type: Date }
     }
   ],
   status: { type: Boolean, default: true },

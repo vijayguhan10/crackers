@@ -16,6 +16,16 @@ const orderSchema = new mongoose.Schema({
       quantity: { type: Number, required: true }
     }
   ],
+  giftboxes: [
+    {
+      giftBoxId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'GiftBox'
+      },
+      quantity: { type: Number, required: true }
+    }
+  ],
   gst: {
     status: { type: Boolean, required: true },
     percentage: { type: Number },
@@ -25,7 +35,7 @@ const orderSchema = new mongoose.Schema({
   total: { type: Number, required: true },
   grandtotal: { type: Number, required: true },
   invoicepdf: { type: String },
-  createdat: { type: Date, default: Date.now }
+  createdat: { type: Date, default: Date.now() }
 });
 
 module.exports = orderSchema;

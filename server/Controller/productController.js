@@ -17,7 +17,10 @@ exports.addProduct = async (req, res) => {
     const db = req.db || (await getDatabaseConnection(req.user?.databaseName));
     const ProductModel = getProductModel(db);
 
-    const product = new ProductModel(req.body);
+    const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+    const productData = { ...req.body, image: randomEmoji };
+
+    const product = new ProductModel(productData);
     const savedProduct = await product.save();
 
     res

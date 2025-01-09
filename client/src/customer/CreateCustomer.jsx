@@ -1,5 +1,9 @@
 import React, { useState } from "react";
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 const CreateCustomer = () => {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -9,18 +13,43 @@ const CreateCustomer = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    // console.log(name, value);
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Submitted:", formData);
-  };
+    const token = localStorage.getItem("cracker_token");
 
+    try {
+      const endpoint = "http://localhost:8000/api/customer/add";
+
+      const response = await axios.post(endpoint, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 200) {
+        console.log(
+          "response data while creating the customer: ",
+          response.data
+        );
+        toast.success("Data submitted successfully!");
+
+        setTimeout(() => {
+          navigate("/billing");
+        }, 2000);
+      } else {
+        toast.error("Submission failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      toast.error("An error occurred. Please try again.");
+    }
+  };
   const openPopup = () => {
     setIsOpen(true);
   };
@@ -31,6 +60,7 @@ const CreateCustomer = () => {
 
   return (
     <>
+      <ToastContainer />
       <button
         onClick={openPopup}
         className="px-6 py-2 text-white mb-2 bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none"

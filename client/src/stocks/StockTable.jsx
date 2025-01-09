@@ -86,8 +86,8 @@ function StockTable() {
     const token = localStorage.getItem("cracker_token");
 
     try {
-      const response = await axios.put(
-        `http://127.0.0.1:8000/api/product/${crackerId}`,
+      const response = await axios.patch(
+        `http://127.0.0.1:8000/api/product/update`,
         editCracker,
         {
           headers: {
@@ -183,10 +183,10 @@ function StockTable() {
                       Total Sales
                     </th>
                     <th className="p-4 text-center border border-gray-800">
-                      Update Product
+                      Status
                     </th>
                     <th className="p-4 text-center border border-gray-800">
-                      Status
+                      Update Product
                     </th>
                   </tr>
                 </thead>
@@ -242,6 +242,10 @@ function StockTable() {
                           `Rs. ${cracker.price}`
                         )}
                       </td>
+
+                      <td className="p-4 text-center border text-red-500 border-gray-800">
+                        {cracker.totalsales}
+                      </td>
                       <td className="p-4 text-center border text-red-500 border-gray-800">
                         {editCracker && editCracker._id === cracker._id ? (
                           <select
@@ -251,16 +255,14 @@ function StockTable() {
                             className="p-2 border rounded-lg"
                           >
                             <option value="none">status</option>
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
+                            <option value="true">Active</option>
+                            <option value="false">Inactive</option>
                           </select>
                         ) : (
-                          <span>{cracker.status}</span>
+                          <span>
+                            {cracker.status === true ? "Active" : "Inactive"}
+                          </span>
                         )}
-                      </td>
-
-                      <td className="p-4 text-center border text-red-500 border-gray-800">
-                        {cracker.totalsales}
                       </td>
                       <td className="items-center flex justify-center mt-4">
                         {editCracker && editCracker._id === cracker._id ? (

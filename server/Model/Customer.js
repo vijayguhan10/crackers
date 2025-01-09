@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const customerSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -6,15 +6,19 @@ const customerSchema = new mongoose.Schema({
   phone: {
     type: String,
     required: true,
-    match: [/^\d{10}$/, 'Invalid phone number']
+    match: [/^\d{10}$/, "Invalid phone number"],
   },
   orders: [
     {
-      id: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
-      invoicepdf: { type: String }
-    }
+      id: { type: mongoose.Schema.Types.ObjectId, ref: "Order" },
+      invoicepdf: { type: String },
+    },
   ],
-  status: { type: Boolean, default: true }
+  status: { type: Boolean, default: true },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 module.exports = customerSchema;

@@ -1,36 +1,56 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CustomerCard from "./CustomerCard";
-import CustomerData from "./customer.json";
 import { Link } from "react-router-dom";
+import axios from "axios";
 import CreateCustomer from "./CreateCustomer";
+import { Loader } from "lucide-react";
 function Index() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [customers, setCustomers] = useState(CustomerData);
+  const [statusFilter, setStatusFilter] = useState("");
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleStatusToggle = (customerId) => {
-    const updatedCustomers = customers.map((customer) => {
-      if (customer.id === customerId) {
-        return {
-          ...customer,
-          status: customer.status === "Active" ? "Inactive" : "Active",
-        };
+  const fetchCustomers = async () => {
+    const token = localStorage.getItem("cracker_token");
+    try {
+      const response = await axios.get("http://localhost:8000/api/customer/", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log("fetched all customer : ", response.data);
+      if (response.status === 200) {
+        setCustomers(response.data);
       }
-      return customer;
-    });
-    setCustomers(updatedCustomers);
+    } catch (error) {
+      console.error("Error fetching customers:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
+
   const filteredCustomers = customers.filter((customer) => {
-    const matchesSearch =
-      customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = customer.name
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+
     const matchesStatus =
-      statusFilter === "all" || customer.status.toLowerCase() === statusFilter;
+      statusFilter === "" ||
+      (statusFilter === "active" && customer.status === true) ||
+      (statusFilter === "inactive" && customer.status === false);
+
     return matchesSearch && matchesStatus;
   });
 
-  return (
+  return loading ? (
+    <div className="flex justify-center items-center h-screen">
+      <Loader />
+    </div>
+  ) : (
     <div className="ml-[16.7%] bg-gray-100 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
@@ -54,7 +74,7 @@ function Index() {
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
-              <option value="all">All Status</option>
+              <option value="">All Status</option>
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
             </select>

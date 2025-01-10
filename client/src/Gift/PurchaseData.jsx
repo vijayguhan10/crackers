@@ -1,7 +1,5 @@
 import React from "react";
 import { Calendar, PhoneCallIcon, HomeIcon } from "lucide-react";
-
-import { MapIcon } from "lucide-react";
 const PurchaseData = () => {
   const GifData = [
     {
@@ -68,7 +66,7 @@ const PurchaseData = () => {
 
   return (
     <div>
-        <h1 className="text-4xl mt-3 mb-3">Gift Sales Record</h1>
+      <h1 className="text-4xl mt-3 mb-3">Gift Sales Record</h1>
       <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-6">
         {GifData.map((gift) => (
           <div
@@ -89,40 +87,10 @@ const PurchaseData = () => {
                 </p>
               </div>
               <div className="flex items-center justify-center h-full">
-                <h1 className="text-2xl font-bold ml-72 text-blue-600">
+                <h1 className="text-2xl font-bold ml-40 text-blue-600">
                   ₹{gift.total.toLocaleString()}
                 </h1>
               </div>
-            </div>
-            <div className="bg-gray-100 rounded-lg overflow-y-scroll custom-scrollbar h-40">
-              <table className="w-full text-sm border border-gray-300">
-                <thead className="bg-gray-700 text-white">
-                  <tr>
-                    <th className="p-2 text-center">Date</th>
-                    <th className="p-2 text-center">Total</th>
-                    <th className="p-2 text-center">Invoice</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {TableData.map((data, idx) => (
-                    <tr
-                      key={idx}
-                      className={`${
-                        idx % 2 === 0 ? "bg-gray-50" : "bg-gray-100"
-                      } border-b`}
-                    >
-                      <td className="p-2 text-center flex items-center justify-center space-x-2">
-                        <Calendar className="text-gray-600" />
-                        <span>{data.dop}</span>
-                      </td>
-                      <td className="p-2 text-center">
-                        ₹{data.total.toLocaleString()}
-                      </td>
-                      <td className="p-2 text-center">{data.invoice}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
             </div>
             <style jsx>{`
               .custom-scrollbar::-webkit-scrollbar {

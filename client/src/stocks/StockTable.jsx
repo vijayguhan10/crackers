@@ -4,6 +4,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Loader } from "lucide-react";
 import Popup from "./Popup";
+import loader from "../assets/Loader.gif";
 function StockTable() {
   const [showModal, setShowModal] = useState(false);
   const [newCracker, setNewCracker] = useState({
@@ -157,7 +158,7 @@ function StockTable() {
 
           {loading || fileLoading ? (
             <div className="flex justify-center items-center h-[300px]">
-              <Loader size={30} className="animate-spin" />
+              <Loader size={50} className=" animate-spin" />
             </div>
           ) : (
             <div className="bg-white rounded-lg shadow h-[90%] overflow-y-scroll custom-scrollbar">
@@ -183,6 +184,9 @@ function StockTable() {
                       Total Sales
                     </th>
                     <th className="p-4 text-center border border-gray-800">
+                      Total Revenue
+                    </th>
+                    <th className="p-4 text-center border border-gray-800">
                       Status
                     </th>
                     <th className="p-4 text-center border border-gray-800">
@@ -194,11 +198,7 @@ function StockTable() {
                   {Products.map((cracker, index) => (
                     <tr key={cracker._id} className="border border-gray-800">
                       <td className="p-4 text-center border border-gray-800">
-                        <img
-                          src={cracker.image}
-                          alt={cracker.name}
-                          className="w-12 h-12 object-cover"
-                        />
+                        <h1 className="text-2xl">{cracker.image}</h1>
                       </td>
                       <td className="p-4 text-center border border-gray-800">
                         {index + 1}
@@ -245,6 +245,9 @@ function StockTable() {
 
                       <td className="p-4 text-center border text-red-500 border-gray-800">
                         {cracker.totalsales}
+                      </td>
+                      <td className="p-4 text-center border text-green-700 font-bold border-gray-800">
+                        20303
                       </td>
                       <td className="p-4 text-center border text-red-500 border-gray-800">
                         {editCracker && editCracker._id === cracker._id ? (

@@ -19,11 +19,7 @@ const Sidebar = () => {
       to: "/dashboard",
       active: true,
     },
-    {
-      icon: <FileText className="w-5 h-5" />,
-      label: 'Billing',
-      to: '/billing'
-    },
+    
     { icon: <Package className="w-5 h-5" />, label: 'Stocks', to: '/stocks' },
     { icon: <Users className="w-5 h-5" />, label: 'Customer', to: '/customer' },
     { icon: <History className="w-5 h-5" />, label: 'History', to: '/History' },

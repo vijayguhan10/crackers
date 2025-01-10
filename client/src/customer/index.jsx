@@ -48,7 +48,7 @@ function Index() {
 
   return loading ? (
     <div className="flex justify-center items-center h-screen">
-      <Loader />
+      <Loader size={50} className=" animate-spin" />
     </div>
   ) : (
     <div className="ml-[16.7%] bg-gray-100 p-4 sm:p-6 lg:p-8">
@@ -89,7 +89,7 @@ function Index() {
             >
               <CustomerCard customer={customer} />
               <Link
-                to="/billing"
+                to={`/billing/${customer._id}`} // Pass the _id as a URL parameter
                 className="mt-auto bg-yellow-400 rounded-lg text-black px-2 w-24 py-2 text-center"
               >
                 Billing

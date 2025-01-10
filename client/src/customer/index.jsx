@@ -1,29 +1,29 @@
-import { useEffect, useState } from "react";
-import CustomerCard from "./CustomerCard";
-import { Link } from "react-router-dom";
-import axios from "axios";
-import CreateCustomer from "./CreateCustomer";
-import { Loader } from "lucide-react";
+import { useEffect, useState } from 'react';
+import CustomerCard from './CustomerCard';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
+import CreateCustomer from './CreateCustomer';
+import { Loader } from 'lucide-react';
 function Index() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchCustomers = async () => {
-    const token = localStorage.getItem("cracker_token");
+    const token = localStorage.getItem('cracker_token');
     try {
-      const response = await axios.get("http://localhost:8000/api/customer/", {
+      const response = await axios.get('http://localhost:8000/api/customer/', {
         headers: {
-          Authorization: `Bearer ${token}`,
-        },
+          Authorization: `Bearer ${token}`
+        }
       });
-      console.log("fetched all customer : ", response.data);
+      console.log('fetched all customer : ', response.data);
       if (response.status === 200) {
         setCustomers(response.data);
       }
     } catch (error) {
-      console.error("Error fetching customers:", error);
+      console.error('Error fetching customers:', error);
     } finally {
       setLoading(false);
     }
@@ -39,9 +39,9 @@ function Index() {
       .includes(searchTerm.toLowerCase());
 
     const matchesStatus =
-      statusFilter === "" ||
-      (statusFilter === "active" && customer.status === true) ||
-      (statusFilter === "inactive" && customer.status === false);
+      statusFilter === '' ||
+      (statusFilter === 'active' && customer.status === true) ||
+      (statusFilter === 'inactive' && customer.status === false);
 
     return matchesSearch && matchesStatus;
   });

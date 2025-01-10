@@ -1,18 +1,18 @@
-import { useState } from "react";
-import Endcart from "./EndCart";
-import Header from "../components/Header";
+import { useState } from 'react';
+import Endcart from './EndCart';
+import Header from '../components/Header';
 function App() {
   const [cart, setCart] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [discount, setDiscount] = useState(50);
 
   const crackers = [
-    { id: "187499", name: "Cracker 1", stock: 1000, price: 100, image: "🎁" },
-    { id: "187456", name: "Cracker 2", stock: 1000, price: 250, image: "🎆" },
-    { id: "187442", name: "Cracker 3", stock: 1000, price: 345, image: "🧨" },
-    { id: "187477", name: "Cracker 4", stock: 1000, price: 50, image: "🚀" },
-    { id: "187441", name: "Cracker 5", stock: 1000, price: 25, image: "🎁" },
-    { id: "187456", name: "Cracker 6", stock: 1000, price: 550, image: "🎆" },
+    { id: '187499', name: 'Cracker 1', stock: 1000, price: 100, image: '🎁' },
+    { id: '187456', name: 'Cracker 2', stock: 1000, price: 250, image: '🎆' },
+    { id: '187442', name: 'Cracker 3', stock: 1000, price: 345, image: '🧨' },
+    { id: '187477', name: 'Cracker 4', stock: 1000, price: 50, image: '🚀' },
+    { id: '187441', name: 'Cracker 5', stock: 1000, price: 25, image: '🎁' },
+    { id: '187457', name: 'Cracker 6', stock: 1000, price: 550, image: '🎆' }
   ];
 
   const addToCart = (cracker) => {
@@ -51,7 +51,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 ml-[16.7%]">
-      <Header/>
+      <Header />
 
       <div className="container mx-auto p-4 flex flex-col lg:flex-row gap-6">
         {/* Billing Section */}
@@ -116,7 +116,7 @@ function App() {
                       </div>
                     </td>
                     <td className="p-4">
-                      Rs.{" "}
+                      Rs.{' '}
                       {(cart.find((item) => item.id === cracker.id)?.quantity ||
                         0) * cracker.price}
                     </td>

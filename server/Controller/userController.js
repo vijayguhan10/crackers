@@ -1,25 +1,22 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+
+const generateToken = require('../utils/TokenGenerator');
 const { encrypt, decrypt } = require('../utils/encryptDecrypt');
+const { getDatabaseConnection, getUserModel } = require('../utils/dbUtil');
+
 const userSchema = require('../Model/User');
 const User = mongoose.model('User', userSchema);
-const generateToken = require('../utils/TokenGenerator');
-
-const getDbConnection = (databasename) => {
-  const dbLink = process.env.DATABASE.replace('<DATABASE>', databasename);
-  return mongoose.createConnection(dbLink);
-};
 
 exports.createSubAdmin = async (req, res) => {
   try {
-    const { name, email, password, databasename } = req.body;
-
     if (req.user.role !== 'superadmin') {
       return res
         .status(400)
         .json({ message: 'Unauthorized to create sub-admins.' });
     }
 
+    const { name, email, password, databasename } = req.body;
     const superAdmin = await User.findById(req.user.id);
     const existingSubAdmin = superAdmin.subadmindetails.find(
       (subAdmin) => subAdmin.email === email
@@ -32,8 +29,8 @@ exports.createSubAdmin = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const subAdminDb = getDbConnection(databasename);
-    const SubAdminUser = subAdminDb.model('User', userSchema);
+    const subAdminDb = getDatabaseConnection(databasename);
+    const SubAdminUser = getUserModel(subAdminDb);
     const subAdmin = new SubAdminUser({
       name,
       email,
@@ -180,7 +177,7 @@ exports.getAllAdmins = async (req, res) => {
   try {
     if (req.user.role !== 'superadmin') {
       return res
-        .status(400)
+        .status(401)
         .json({ message: 'Unauthorized to view all sub-admins.' });
     }
 

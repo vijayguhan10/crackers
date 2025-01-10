@@ -1,13 +1,15 @@
-const mongoose = require('mongoose');
-const giftBoxSchema = require('../Model/GiftBox');
-
-const getGiftBoxModel = (db) => {
-  return db.model('GiftBox', giftBoxSchema);
-};
+const { getGiftBoxModel } = require('../utils/dbUtil');
 
 exports.createGiftBox = async (req, res) => {
   try {
-    const GiftBox = getGiftBoxModel(req.db);
+    if (req.user.role !== 'subadmin') {
+      return res
+        .status(401)
+        .json({ message: 'Unauthorized to Create Gift Box.' });
+    }
+
+    const db = req.db;
+    const GiftBox = getGiftBoxModel(db);
     const newGiftBox = new GiftBox(req.body);
     const savedGiftBox = await newGiftBox.save();
     res
@@ -22,7 +24,14 @@ exports.createGiftBox = async (req, res) => {
 
 exports.getAllGiftBoxes = async (req, res) => {
   try {
-    const GiftBox = getGiftBoxModel(req.db);
+    if (req.user.role !== 'subadmin') {
+      return res
+        .status(401)
+        .json({ message: 'Unauthorized to Get All Gift Boxes.' });
+    }
+
+    const db = req.db;
+    const GiftBox = getGiftBoxModel(db);
     const giftBoxes = await GiftBox.find();
     res.status(200).json(giftBoxes);
   } catch (error) {
@@ -34,7 +43,12 @@ exports.getAllGiftBoxes = async (req, res) => {
 
 exports.getGiftBoxById = async (req, res) => {
   try {
-    const GiftBox = getGiftBoxModel(req.db);
+    if (req.user.role !== 'subadmin') {
+      return res.status(401).json({ message: 'Unauthorized to Get Gift Box.' });
+    }
+
+    const db = req.db;
+    const GiftBox = getGiftBoxModel(db);
     if (!req.body.id) {
       return res.status(400).json({ message: 'GiftBox ID is required!' });
     }
@@ -55,7 +69,14 @@ exports.getGiftBoxById = async (req, res) => {
 
 exports.deleteGiftBoxById = async (req, res) => {
   try {
-    const GiftBox = getGiftBoxModel(req.db);
+    if (req.user.role !== 'subadmin') {
+      return res
+        .status(401)
+        .json({ message: 'Unauthorized to delete Gift Box.' });
+    }
+
+    const db = req.db;
+    const GiftBox = getGiftBoxModel(db);
 
     if (!req.body.id) {
       return res.status(400).json({ message: 'GiftBox ID required!' });
@@ -85,7 +106,14 @@ exports.deleteGiftBoxById = async (req, res) => {
 
 exports.updateGiftBoxById = async (req, res) => {
   try {
-    const GiftBox = getGiftBoxModel(req.db);
+    if (req.user.role !== 'subadmin') {
+      return res
+        .status(401)
+        .json({ message: 'Unauthorized to update Gift Box.' });
+    }
+
+    const db = req.db;
+    const GiftBox = getGiftBoxModel(db);
 
     if (!req.body.id) {
       return res.status(400).json({ message: 'GiftBox ID is required!' });
@@ -118,7 +146,14 @@ exports.updateGiftBoxById = async (req, res) => {
 
 exports.getAllActiveGiftBox = async (req, res) => {
   try {
-    const GiftBox = getGiftBoxModel(req.db);
+    if (req.user.role !== 'subadmin') {
+      return res
+        .status(401)
+        .json({ message: 'Unauthorized to Get Active Gift Boxes.' });
+    }
+
+    const db = req.db;
+    const GiftBox = getGiftBoxModel(db);
     const giftBoxes = await GiftBox.find({ status: true });
     res.status(200).json(giftBoxes);
   } catch (error) {

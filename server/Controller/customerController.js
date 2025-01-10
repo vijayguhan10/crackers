@@ -1,61 +1,20 @@
-const mongoose = require('mongoose');
-const customerSchema = require('../Model/Customer');
-const companySchema = require('../Model/Company');
-
-const getCompanyModel = (db) => db.model('Company', companySchema);
-const getCustomerModel = (db) => db.model('Customer', customerSchema);
-
-exports.getAllCustomers = async (req, res) => {
-  try {
-    if (req.user.role !== 'subadmin') {
-      return res
-        .status(403)
-        .json({ message: 'Unauthorized to view customer details.' });
-    }
-
-    const db = req.db;
-    if (!db) {
-      return res
-        .status(500)
-        .json({ message: 'Database connection not found.' });
-    }
-
-    const Customer = getCustomerModel(db);
-    const customers = await Customer.find({});
-
-    if (!customers.length) {
-      return res.status(400).json({ message: 'No customers found.' });
-    }
-
-    res.status(200).json(customers);
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: 'Error fetching customers', error: error.message });
-  }
-};
+const { getCompanyModel, getCustomerModel } = require('../utils/dbUtil');
 
 exports.createCustomer = async (req, res) => {
   try {
     if (req.user.role !== 'subadmin') {
       return res
-        .status(400)
+        .status(401)
         .json({ message: 'Unauthorized to create a customer.' });
     }
 
     const db = req.db;
-    if (!db) {
-      return res
-        .status(500)
-        .json({ message: 'Database connection not found.' });
-    }
-
     const Customer = getCustomerModel(db);
     const Company = getCompanyModel(db);
 
     const company = await Company.findOne();
     if (!company) {
-      return res.status(400).json({ message: 'Company details not found' });
+      return res.status(404).json({ message: 'Company details not found' });
     }
 
     const { name, address, phone } = req.body;
@@ -87,45 +46,23 @@ exports.createCustomer = async (req, res) => {
   }
 };
 
-exports.changeActive = async (req, res) => {
+exports.getAllCustomers = async (req, res) => {
   try {
     if (req.user.role !== 'subadmin') {
       return res
-        .status(403)
-        .json({ message: 'Unauthorized to change customer state.' });
+        .status(401)
+        .json({ message: 'Unauthorized to view customer details.' });
     }
 
     const db = req.db;
-    if (!db) {
-      return res
-        .status(500)
-        .json({ message: 'Database connection not found.' });
-    }
-
     const Customer = getCustomerModel(db);
-    const { id } = req.body;
-    if (!id) {
-      return res.status(400).json({ message: 'Customer ID is required.' });
-    }
+    const customers = await Customer.find({});
 
-    const customer = await Customer.findById(id);
-    if (!customer) {
-      return res.status(400).json({ message: 'Customer not found.' });
-    }
-
-    customer.status = !customer.status;
-    await customer.save();
-
-    res.status(200).json({
-      message: `Customer status changed to ${
-        customer.status ? 'active' : 'inactive'
-      }.`,
-      customer
-    });
+    res.status(200).json(customers);
   } catch (error) {
     res
       .status(500)
-      .json({ message: 'Error changing customer state', error: error.message });
+      .json({ message: 'Error fetching customers', error: error.message });
   }
 };
 
@@ -133,17 +70,11 @@ exports.getCustomer = async (req, res) => {
   try {
     if (req.user.role !== 'subadmin') {
       return res
-        .status(403)
+        .status(401)
         .json({ message: 'Unauthorized to get customer details.' });
     }
 
     const db = req.db;
-    if (!db) {
-      return res
-        .status(500)
-        .json({ message: 'Database connection not found.' });
-    }
-
     const Customer = getCustomerModel(db);
     const { id } = req.body;
     if (!id) {
@@ -168,17 +99,11 @@ exports.updateCustomer = async (req, res) => {
   try {
     if (req.user.role !== 'subadmin') {
       return res
-        .status(403)
+        .status(401)
         .json({ message: 'Unauthorized to update customer details.' });
     }
 
     const db = req.db;
-    if (!db) {
-      return res
-        .status(500)
-        .json({ message: 'Database connection not found.' });
-    }
-
     const Customer = getCustomerModel(db);
     const { id } = req.body;
 
@@ -210,3 +135,39 @@ exports.updateCustomer = async (req, res) => {
     });
   }
 };
+
+// exports.changeActive = async (req, res) => {
+//   try {
+//     if (req.user.role !== 'subadmin') {
+//       return res
+//         .status(401)
+//         .json({ message: 'Unauthorized to change customer state.' });
+//     }
+
+//     const db = req.db;
+//     const Customer = getCustomerModel(db);
+//     const { id } = req.body;
+//     if (!id) {
+//       return res.status(400).json({ message: 'Customer ID is required.' });
+//     }
+
+//     const customer = await Customer.findById(id);
+//     if (!customer) {
+//       return res.status(400).json({ message: 'Customer not found.' });
+//     }
+
+//     customer.status = !customer.status;
+//     await customer.save();
+
+//     res.status(200).json({
+//       message: `Customer status changed to ${
+//         customer.status ? 'active' : 'inactive'
+//       }.`,
+//       customer
+//     });
+//   } catch (error) {
+//     res
+//       .status(500)
+//       .json({ message: 'Error changing customer state', error: error.message });
+//   }
+// };

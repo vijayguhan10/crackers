@@ -10,16 +10,12 @@ const router = express.Router();
 
 router.route('/add').post(authMiddleware, productController.addProduct);
 router.route('/').get(authMiddleware, productController.getAllProducts);
-router
-  .route('/single')
-  .get(authMiddleware, productController.getProductDetails);
+router.route('/single').get(authMiddleware, productController.getProductById);
 router.route('/update').patch(authMiddleware, productController.updateProduct);
 router.route('/delete').put(authMiddleware, productController.deleteProduct);
 router
   .route('/active')
   .get(authMiddleware, productController.getActiveProducts);
-
-router.route('/add').post(authMiddleware, productController.addProduct);
 
 router
   .route('/bulkadd')

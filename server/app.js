@@ -1,11 +1,8 @@
-const express = require('express');
 const mongoose = require('mongoose');
+const express = require('express');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
 const cors = require('cors');
-dotenv.config();
-const app = express();
-app.use(cors());
 
 const userRouter = require('./route/userRoute');
 const productRouter = require('./route/productRoute');
@@ -13,6 +10,10 @@ const companyRouter = require('./route/companyRoute');
 const orderRouter = require('./route/orderRoute');
 const customerRouter = require('./route/customerRoute');
 const giftboxRouter = require('./route/giftboxRoute');
+
+dotenv.config();
+const app = express();
+app.use(cors());
 
 app.use(morgan('dev'));
 app.use(express.json());

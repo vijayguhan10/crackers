@@ -54,7 +54,7 @@ function StockTable() {
     try {
       setFileLoading(true);
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/product/bulkadd",
+        `${process.env.REACT_APP_BASEURL}/product/bulkadd`,
         formData,
         {
           headers: {
@@ -88,7 +88,7 @@ function StockTable() {
 
     try {
       const response = await axios.patch(
-        `http://127.0.0.1:8000/api/product/update`,
+        `${process.env.REACT_APP_BASEURL}/product/update`,
         editCracker,
         {
           headers: {

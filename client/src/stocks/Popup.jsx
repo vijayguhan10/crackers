@@ -47,7 +47,7 @@ const Popup = ({ newCracker, setNewCracker, getProducts, setShowModal }) => {
                 const token = localStorage.getItem("cracker_token");
                 try {
                   await axios.post(
-                    "http://127.0.0.1:8000/api/product/add",
+                    `${process.env.REACT_APP_BASEURL}/product/add`,
                     newCracker,
                     {
                       headers: {

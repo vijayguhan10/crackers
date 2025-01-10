@@ -1,28 +1,15 @@
-const mongoose = require("mongoose");
-const companySchema = require("../Model/Company");
-
-const getDbConnection = (databaseName) => {
-  const dbLink = process.env.DATABASE.replace("<DATABASE>", databaseName);
-  return mongoose.createConnection(dbLink);
-};
+const { getCompanyModel } = require('../utils/dbUtil');
 
 exports.createCompany = async (req, res) => {
   try {
-    if (req.user.role !== "subadmin") {
+    if (req.user.role !== 'subadmin') {
       return res
-        .status(400)
-        .json({ message: "Unauthorized to perform this action." });
+        .status(401)
+        .json({ message: 'Unauthorized to perform this action.' });
     }
 
-    const dbName = req.user.databaseName;
-    if (!dbName) {
-      return res
-        .status(400)
-        .json({ message: "Database name missing in the token." });
-    }
-
-    const dbConnection = getDbConnection(dbName);
-    const Company = dbConnection.model("Company", companySchema);
+    const db = req.db;
+    const Company = getCompanyModel(db);
 
     const {
       companyname,
@@ -38,7 +25,7 @@ exports.createCompany = async (req, res) => {
       accounttype,
       bankname,
       branch,
-      ifsc,
+      ifsc
     } = req.body;
 
     const company = new Company({
@@ -56,127 +43,102 @@ exports.createCompany = async (req, res) => {
         accounttype,
         bankname,
         branch,
-        ifsc,
-      },
+        ifsc
+      }
     });
 
     await company.save();
-    dbConnection.close();
+    db.close();
 
     return res
       .status(200)
-      .json({ message: "Company created successfully.", company });
+      .json({ message: 'Company created successfully.', company });
   } catch (error) {
     return res
       .status(500)
-      .json({ message: "Server error.", error: error.message });
+      .json({ message: 'Server error.', error: error.message });
   }
 };
 
-exports.getCompanyById = async (req, res) => {
+exports.getCompany = async (req, res) => {
   try {
-    if (req.user.role !== "subadmin") {
+    if (req.user.role !== 'subadmin') {
       return res
-        .status(400)
-        .json({ message: "Unauthorized to perform this action." });
+        .status(401)
+        .json({ message: 'Unauthorized to perform this action.' });
     }
 
-    const dbName = req.user.databaseName;
-    if (!dbName) {
-      return res
-        .status(400)
-        .json({ message: "Database name missing in the token." });
-    }
+    const db = req.db;
+    const Company = getCompanyModel(db);
 
-    const dbConnection = getDbConnection(dbName);
-    const Company = dbConnection.model("Company", companySchema);
-
-    const { id } = req.params;
-    const company = await Company.findById(id);
-    dbConnection.close();
+    const company = await Company.findOne();
+    db.close();
 
     if (!company) {
-      return res.status(404).json({ message: "Company not found." });
+      return res.status(404).json({ message: 'Company not found.' });
     }
 
     return res.status(200).json(company);
   } catch (error) {
     return res
       .status(500)
-      .json({ message: "Server error.", error: error.message });
+      .json({ message: 'Server error.', error: error.message });
   }
 };
 
-exports.updateCompanyById = async (req, res) => {
+exports.updateCompany = async (req, res) => {
   try {
-    if (req.user.role !== "subadmin") {
+    if (req.user.role !== 'subadmin') {
       return res
-        .status(400)
-        .json({ message: "Unauthorized to perform this action." });
+        .status(401)
+        .json({ message: 'Unauthorized to perform this action.' });
     }
 
-    const dbName = req.user.databaseName;
-    if (!dbName) {
-      return res
-        .status(400)
-        .json({ message: "Database name missing in the token." });
-    }
-
-    const dbConnection = getDbConnection(dbName);
-    const Company = dbConnection.model("Company", companySchema);
-
-    const { id } = req.params;
+    const db = req.db;
+    const Company = getCompanyModel(db);
     const updatedData = req.body;
 
-    const company = await Company.findByIdAndUpdate(id, updatedData, {
-      new: true,
+    const company = await Company.findOneAndUpdate({}, updatedData, {
+      new: true
     });
-    dbConnection.close();
+    db.close();
 
     if (!company) {
-      return res.status(404).json({ message: "Company not found." });
+      return res.status(404).json({ message: 'Company not found.' });
     }
 
     return res
       .status(200)
-      .json({ message: "Company updated successfully.", company });
+      .json({ message: 'Company updated successfully.', company });
   } catch (error) {
     return res
       .status(500)
-      .json({ message: "Server error.", error: error.message });
+      .json({ message: 'Server error.', error: error.message });
   }
 };
 
-exports.deleteCompanyById = async (req, res) => {
+exports.deleteCompany = async (req, res) => {
   try {
-    if (req.user.role !== "subadmin") {
+    if (req.user.role !== 'subadmin') {
       return res
-        .status(400)
-        .json({ message: "Unauthorized to perform this action." });
+        .status(401)
+        .json({ message: 'Unauthorized to perform this action.' });
     }
 
-    const dbName = req.user.databaseName;
-    if (!dbName) {
-      return res
-        .status(400)
-        .json({ message: "Database name missing in the token." });
-    }
+    const db = req.db;
+    const Company = getCompanyModel(db);
 
-    const dbConnection = getDbConnection(dbName);
-    const Company = dbConnection.model("Company", companySchema);
-
-    const { id } = req.params;
-    const company = await Company.findByIdAndDelete(id);
-    dbConnection.close();
+    const company = await Company.findOneAndDelete();
+    db.close();
 
     if (!company) {
-      return res.status(404).json({ message: "Company not found." });
+      return res.status(404).json({ message: 'Company not found.' });
     }
 
-    return res.status(200).json({ message: "Company deleted successfully." });
+    return res.status(200).json({ message: 'Company deleted successfully.' });
   } catch (error) {
     return res
       .status(500)
-      .json({ message: "Server error.", error: error.message });
+      .json({ message: 'Server error.', error: error.message });
   }
 };

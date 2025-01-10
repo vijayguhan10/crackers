@@ -16,6 +16,16 @@ const orderSchema = new mongoose.Schema({
       quantity: { type: Number, required: true }
     }
   ],
+  giftboxes: [
+    {
+      giftBoxId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'GiftBox'
+      },
+      quantity: { type: Number, required: true }
+    }
+  ],
   gst: {
     status: { type: Boolean, required: true },
     percentage: { type: Number },

@@ -23,7 +23,7 @@ function StockTable() {
 
     try {
       setLoading(true);
-      const response = await axios.get(`${process.env.REACT_APP_BASEURL}/api/product/`, {
+      const response = await axios.get(`${process.env.REACT_APP_BASEURL}/product/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

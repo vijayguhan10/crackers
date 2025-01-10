@@ -43,7 +43,6 @@ const EndCart = ({
     };
     const token = localStorage.getItem("cracker_token");
     const decoded = jwtDecode(token);
-    // requestData.id = decoded.id;
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_BASEURL}/order/place-order`,

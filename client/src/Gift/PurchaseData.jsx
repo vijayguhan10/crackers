@@ -1,111 +1,122 @@
-import React from "react";
-import { Calendar, PhoneCallIcon, HomeIcon } from "lucide-react";
-const PurchaseData = () => {
-  const GifData = [
-    {
-      id: 1,
-      name: "Diwali Delight Box",
-      totalSales: 20,
-      total: 200000,
-    },
-    {
-      id: 2,
-      name: "Festival Fiesta Pack",
-      totalSales: 15,
-      total: 150000,
-    },
-    {
-      id: 3,
-      name: "Cracker Carnival Box",
-      totalSales: 18,
-      total: 180000,
-    },
-    {
-      id: 4,
-      name: "Sparkle Supreme Set",
-      totalSales: 22,
-      total: 220000,
-    },
-    {
-      id: 5,
-      name: "Celebration Combo",
-      totalSales: 19,
-      total: 190000,
-    },
-    {
-      id: 6,
-      name: "Fireworks Fun Pack",
-      totalSales: 25,
-      total: 250000,
-    },
-    {
-      id: 7,
-      name: "Royal Cracker Box",
-      totalSales: 30,
-      total: 300000,
-    },
-    {
-      id: 8,
-      name: "Festive Sparks Bundle",
-      totalSales: 17,
-      total: 170000,
-    },
-  ];
+import React, { useEffect, useState } from "react";
+import {
+  User,
+  ArchiveRestore,
+  Package,
+  ShoppingCartIcon,
+  Edit,
+  Trash,
+} from "lucide-react";
+import axios from "axios";
 
-  const TableData = [
-    { dop: "12.10.2005", invoice: 1211, total: 20000 },
-    { dop: "15.11.2006", invoice: 1212, total: 35000 },
-    { dop: "20.09.2007", invoice: 1213, total: 15000 },
-    { dop: "12.10.2005", invoice: 1211, total: 20000 },
-    { dop: "15.11.2006", invoice: 1212, total: 35000 },
-    { dop: "20.09.2007", invoice: 1213, total: 15000 },
-    { dop: "12.10.2005", invoice: 1211, total: 20000 },
-    { dop: "15.11.2006", invoice: 1212, total: 35000 },
-    { dop: "20.09.2007", invoice: 1213, total: 15000 },
-  ];
+const PurchaseData = () => {
+  const [Loading, setLoading] = useState(false);
+  const [GiftBox, SetGiftBox] = useState([]);
+
+  const getAllGiftBoxes = async () => {
+    const token = localStorage.getItem("cracker_token");
+
+    try {
+      setLoading(true);
+      const response = await axios.get(
+        `${process.env.REACT_APP_BASEURL}/giftbox`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      SetGiftBox(response.data);
+      console.log("fetched gift data : ", response.data);
+    } catch (error) {
+      console.error("Error fetching products: ", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getAllGiftBoxes();
+  }, []);
+
+  const handleDelete = async (id, status) => {
+    const data = {
+      id: id,
+      status: !status,
+    };
+    console.log("status : ", status);
+    const token = localStorage.getItem("cracker_token");
+
+    try {
+      const response = await axios.put(
+        `${process.env.REACT_APP_BASEURL}/giftbox`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log(response.data);
+      getAllGiftBoxes();
+    } catch (error) {
+      console.error("Error deleting gift box: ", error);
+    }
+  };
 
   return (
     <div>
       <h1 className="text-4xl mt-3 mb-3">Gift Sales Record</h1>
       <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-6">
-        {GifData.map((gift) => (
+        {GiftBox.map((gift) => (
           <div
-            key={gift.id}
-            className="flex flex-col bg-white rounded-lg shadow-lg p-6 overflow-hidden"
+            key={gift._id}
+            className={`flex flex-col  rounded-lg border-black border p-6 overflow-hidden ${
+              gift.status ? "bg-green-100" : "bg-red-100"
+            }`}
           >
-            <div className=" mb-4 flex flex-row">
-              <div className=" flex flex-col">
-                <p className="text-sm text-gray-600 flex">
-                  <HomeIcon size={16} color="green" />
-                  <span className="pl-2 font-extrabold text-xl text-nowrap">
-                    {gift.name}
-                  </span>
+            <div className="mb-4 flex flex-row justify-between">
+              <div className="flex flex-col">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <p className="text-sm text-gray-600 flex">
+                      <User size={16} color="green" />
+                      <span className="pl-2 font-extrabold text-xl xl:text-2xl lg:text-sm text-nowrap">
+                        {gift.name}
+                      </span>
+                    </p>
+                  </div>
+                  <div className="flex items-center xl:ml-80 lg:ml-52 absolute">
+                    <Edit className="cursor-pointer mr-2" />
+                    {gift.status ? (
+                      <Trash
+                        className="cursor-pointer"
+                        onClick={() => handleDelete(gift._id, gift.status)} // Pass id and current status to delete handler
+                      />
+                    ) : (
+                      <ArchiveRestore
+                        className="cursor-pointer"
+                        onClick={() => handleDelete(gift._id, gift.status)} 
+                      />
+                    )}
+                  </div>
+                </div>
+
+                <p className=" text-gray-600 flex text-xl xl:text-lg lg:text-sm text-nowrap">
+                  <Package size={16} color="green" />
+                  <span className="pl-2 lg:text-md">{gift.totalsales}</span>
                 </p>
-                <p className="text-sm text-gray-600 flex">
-                  <PhoneCallIcon size={16} color="green" />
-                  <span className="pl-2">{gift.totalSales}</span>
+                <p className="text-xl xl:text-lg lg:text-sm text-nowrap text-gray-600 flex">
+                  <ShoppingCartIcon size={16} color="green" />
+                  <span className="pl-2 lg:text-md">{gift.stockavailable}</span>
                 </p>
               </div>
               <div className="flex items-center justify-center h-full">
-                <h1 className="text-2xl font-bold ml-40 text-blue-600">
+                <h1 className="text-2xl font-bold text-blue-600">
                   ₹{gift.total.toLocaleString()}
                 </h1>
               </div>
             </div>
-            <style jsx>{`
-              .custom-scrollbar::-webkit-scrollbar {
-                width: 12px;
-                background-color: #f4f4f4;
-              }
-              .custom-scrollbar::-webkit-scrollbar-thumb {
-                background-color: #4a5568;
-                border-radius: 10px;
-                border: 3px solid #f4f4f4;
-              }
-              .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                background-color: #2d3748;
-              }
-            `}</style>
           </div>
         ))}
       </div>

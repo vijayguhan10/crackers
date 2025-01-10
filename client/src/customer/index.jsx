@@ -13,11 +13,14 @@ function Index() {
   const fetchCustomers = async () => {
     const token = localStorage.getItem("cracker_token");
     try {
-      const response = await axios.get("http://localhost:8000/api/customer/", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        `${process.env.REACT_APP_BASEURL}/customer/`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       console.log("fetched all customer : ", response.data);
       if (response.status === 200) {
         setCustomers(response.data);

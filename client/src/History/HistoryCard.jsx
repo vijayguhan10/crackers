@@ -12,7 +12,7 @@ const HistoryCard = () => {
       try {
         toast.info("Fetching customer data...");
         const response = await axios.get(
-          "http://localhost:8000/api/customer/",
+          `${process.env.REACT_APP_BASEURL}/customer/`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

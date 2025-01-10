@@ -46,7 +46,7 @@ const EndCart = ({
     // requestData.id = decoded.id;
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/order/place-order",
+        `${process.env.REACT_APP_BASEURL}/order/place-order`,
         requestData,
         {
           headers: {

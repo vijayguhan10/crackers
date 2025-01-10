@@ -34,7 +34,7 @@ function Signup() {
         });
         toast.success('Signup successful!');
       } else {
-        const response = await axios.post(`${process.env.REACT_APP_BASEURL}/api/userAuth/login`, {
+        const response = await axios.post(`${process.env.REACT_APP_BASEURL}/userAuth/login`, {
           email: formData.email,
           password: formData.password,
         });

@@ -24,7 +24,7 @@ const CreateCustomer = () => {
     const token = localStorage.getItem("cracker_token");
 
     try {
-      const endpoint = "http://localhost:8000/api/customer/add";
+      const endpoint = `${process.env.REACT_APP_BASEURL}/customer/add`;
 
       const response = await axios.post(endpoint, formData, {
         headers: {

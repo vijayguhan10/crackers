@@ -22,7 +22,7 @@ function App() {
     try {
       setLoading(true);
       const response = await axios.get(
-        "http://localhost:8000/api/product/active",
+        `${process.env.REACT_APP_BASEURL}/product/active`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

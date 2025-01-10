@@ -1,17 +1,12 @@
-const mongoose = require('mongoose');
-const orderSchema = require('../Model/Order');
-const customerSchema = require('../Model/Customer');
-const productSchema = require('../Model/Product');
-const companySchema = require('../Model/Company');
-const giftBoxSchema = require('../Model/GiftBox');
 const { generatePDF } = require('../utils/GenerateInvoice');
 const { uploadPDFToCloudinary } = require('../utils/uploadPdf');
-
-const getOrderModel = (db) => db.model('Order', orderSchema);
-const getCustomerModel = (db) => db.model('Customer', customerSchema);
-const getProductModel = (db) => db.model('Product', productSchema);
-const getCompanyModel = (db) => db.model('Company', companySchema);
-const getGiftBoxModel = (db) => db.model('GiftBox', giftBoxSchema);
+const {
+  getCompanyModel,
+  getCustomerModel,
+  getGiftBoxModel,
+  getOrderModel,
+  getProductModel
+} = require('../utils/dbUtil');
 
 exports.placeOrder = async (req, res) => {
   const session = await req.db.startSession();
@@ -20,7 +15,7 @@ exports.placeOrder = async (req, res) => {
   try {
     if (req.user.role !== 'subadmin') {
       return res
-        .status(400)
+        .status(401)
         .json({ message: 'Unauthorized to place an order.' });
     }
 

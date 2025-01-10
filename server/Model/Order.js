@@ -35,7 +35,7 @@ const orderSchema = new mongoose.Schema({
   total: { type: Number, required: true },
   grandtotal: { type: Number, required: true },
   invoicepdf: { type: String },
-  createdat: { type: Date, default: Date.now() }
+  createdat: { type: Date, default: Date.now }
 });
 
 module.exports = orderSchema;

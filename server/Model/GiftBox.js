@@ -52,7 +52,7 @@ const giftBoxSchema = new mongoose.Schema({
   },
   createdat: {
     type: Date,
-    default: Date.now()
+    default: Date.now
   }
 });
 

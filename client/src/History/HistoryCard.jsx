@@ -1,29 +1,29 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { Calendar, PhoneCallIcon, HomeIcon, MapIcon } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Calendar, PhoneCallIcon, HomeIcon, MapIcon } from 'lucide-react';
 const HistoryCard = () => {
   const [customerData, setCustomerData] = useState([]);
 
   useEffect(() => {
     const fetchCustomerData = async () => {
-      const token = localStorage.getItem("cracker_token");
+      const token = localStorage.getItem('cracker_token');
       try {
-        toast.info("Fetching customer data...");
+        toast.info('Fetching customer data...');
         const response = await axios.get(
-          `${process.env.REACT_APP_BASEURL}/customer/`,
+          `${process.env.REACT_APP_BASEURL}/customer/history`,
           {
             headers: {
-              Authorization: `Bearer ${token}`,
-            },
+              Authorization: `Bearer ${token}`
+            }
           }
         );
-        console.log("response of the Customer History :", response.data);
+        console.log('response of the Customer History :', response.data);
         setCustomerData(response.data);
-        toast.success("Customer data fetched successfully!");
+        toast.success('Customer data fetched successfully!');
       } catch (error) {
-        toast.error("Failed to fetch customer data. Please try again.");
+        toast.error('Failed to fetch customer data. Please try again.');
         console.error(error);
       }
     };
@@ -78,7 +78,7 @@ const HistoryCard = () => {
                   <tr
                     key={order._id}
                     className={`${
-                      idx % 2 === 0 ? "bg-gray-50" : "bg-gray-100"
+                      idx % 2 === 0 ? 'bg-gray-50' : 'bg-gray-100'
                     } border-b`}
                   >
                     <td className="p-2 text-center flex items-center justify-center space-x-2">

@@ -1,53 +1,53 @@
-import React, { useState } from "react";
-import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
+import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 const CreateCustomer = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
-    address: "",
+    name: '',
+    phone: '',
+    address: ''
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
-      [name]: value,
+      [name]: value
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("cracker_token");
+    const token = localStorage.getItem('cracker_token');
 
     try {
       const endpoint = `${process.env.REACT_APP_BASEURL}/customer/add`;
 
       const response = await axios.post(endpoint, formData, {
         headers: {
-          Authorization: `Bearer ${token}`,
-        },
+          Authorization: `Bearer ${token}`
+        }
       });
 
       if (response.status === 200) {
         console.log(
-          "response data while creating the customer: ",
+          'response data while creating the customer: ',
           response.data
         );
-        toast.success("Data submitted successfully!");
+        toast.success('Data submitted successfully!');
 
         setTimeout(() => {
-          navigate("/billing");
+          navigate(`/billing/${response.data.customer._id}`);
         }, 2000);
       } else {
-        toast.error("Submission failed. Please try again.");
+        toast.error('Submission failed. Please try again.');
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
-      toast.error("An error occurred. Please try again.");
+      console.error('Error submitting form:', error);
+      toast.error('An error occurred. Please try again.');
     }
   };
   const openPopup = () => {

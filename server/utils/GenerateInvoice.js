@@ -1,13 +1,33 @@
 const puppeteer = require('puppeteer');
 
 const generatePDF = async (pdfParams) => {
-  const company = pdfParams.companyDetails;
-  const customer = pdfParams.customerDetails;
-  const order = pdfParams.orderDetails;
+  try {
+    const company = pdfParams.companyDetails;
+    const customer = pdfParams.customerDetails;
+    const order = pdfParams.orderDetails;
 
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.setContent(generateHTML(company, customer, order), {
+      waitUntil: 'networkidle0'
+    });
 
+    await page.pdf({
+      path: `invoice.pdf`,
+      format: 'A4',
+      printBackground: true,
+      margin: { top: '20px', bottom: '20px', left: '20px', right: '20px' }
+    });
+
+    console.log('PDF generated successfully!');
+    await browser.close();
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    throw error;
+  }
+};
+
+const generateHTML = (company, customer, order) => {
   let s_no = 1;
   const itemsHTML = order.cartitems
     .map((item) => {
@@ -28,43 +48,43 @@ const generatePDF = async (pdfParams) => {
   const totalsHTML =
     order.gst && order.gst.status
       ? `
-    <p style="margin: 5px 0;"><strong>Total (Before GST):</strong> RS.${
-      order.total
-    }</p>
+          <p style="margin: 5px 0;"><strong>Total (Before GST):</strong> RS.${
+            order.total
+          }</p>
 
-    <p style="margin: 5px 0;"><strong>Discount (${
-      order.discount
-    }%):</strong> RS.${
+          <p style="margin: 5px 0;"><strong>Discount (${
+            order.discount
+          }%):</strong> RS.${
           Math.round(((order.discount * order.total) / 100) * 100) / 100
         }</p>
 
-    <p style="margin: 5px 0;"><strong>GST (${
-      order.gst.percentage
-    }%):</strong> RS.${order.gst.amount}</p>
-    <p style="margin: 5px 0; font-size: 18px;"><strong>Grand Total:</strong> RS.${
-      order.grandtotal
-    }</p>
-  `
+          <p style="margin: 5px 0;"><strong>GST (${
+            order.gst.percentage
+          }%):</strong> RS.${order.gst.amount}</p>
+          <p style="margin: 5px 0; font-size: 18px;"><strong>Grand Total:</strong> RS.${
+            order.grandtotal
+          }</p>
+        `
       : `
-    <p style="margin: 5px 0;"><strong>Estimated Total:</strong> RS.${
-      order.total
-    }</p>
-    <p style="margin: 5px 0;"><strong>Discount (${
-      order.discount
-    }%):</strong> RS.${
+          <p style="margin: 5px 0;"><strong>Estimated Total:</strong> RS.${
+            order.total
+          }</p>
+          <p style="margin: 5px 0;"><strong>Discount (${
+            order.discount
+          }%):</strong> RS.${
           Math.round(((order.discount * order.total) / 100) * 100) / 100
         }</p>
-    <p style="margin: 5px 0; font-size: 18px;"><strong>Estimated Grand Total:</strong> RS.${
-      order.grandtotal
-    }</p>
-  `;
+          <p style="margin: 5px 0; font-size: 18px;"><strong>Estimated Grand Total:</strong> RS.${
+            order.grandtotal
+          }</p>
+        `;
 
   const EstimatedTotal =
     !order.gst || !order.gst.status
       ? `<div style="margin-top: 20px; font-size: 20px; font-weight: bold; text-align: center; background-color: #f8f8f8; padding: 10px; border-radius: 8px;">Estimated Total: RS.${order.grandtotal}</div>`
       : null;
 
-  await page.setContent(`
+  return `
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -184,18 +204,7 @@ const generatePDF = async (pdfParams) => {
 
     </body>
     </html>
-  `);
-
-  await page.pdf({
-    path: `invoice.pdf`,
-    format: 'A4',
-    printBackground: true,
-    margin: { top: '20px', bottom: '20px', left: '20px', right: '20px' }
-  });
-
-  console.log('PDF generated successfully!');
-
-  await browser.close();
+  `;
 };
 
 module.exports = { generatePDF };

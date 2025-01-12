@@ -20,7 +20,7 @@ const orderSchema = new mongoose.Schema({
     {
       giftBoxId: {
         type: mongoose.Schema.Types.ObjectId,
-        required: true,
+        // required: true,
         ref: 'GiftBox'
       },
       quantity: { type: Number, required: true }

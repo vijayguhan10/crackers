@@ -34,16 +34,19 @@ function Signup() {
         });
         toast.success('Signup successful!');
       } else {
-        const response = await axios.post(`${process.env.REACT_APP_BASEURL}/userAuth/login`, {
-          email: formData.email,
-          password: formData.password,
-        });
-        localStorage.setItem("cracker_token",response.data.token)
+        const response = await axios.post(
+          `${process.env.REACT_APP_BASEURL}/userAuth/login`,
+          {
+            email: formData.email,
+            password: formData.password
+          }
+        );
+        localStorage.setItem('cracker_token', response.data.token);
 
-        console.log("Response of the Login : ", response);
-        toast.success("Login successful!");
+        console.log('Response of the Login : ', response);
+        toast.success('Login successful!');
 
-        navigate("/dashboard");
+        navigate('/dashboard');
       }
     } catch (error) {
       console.error(error);

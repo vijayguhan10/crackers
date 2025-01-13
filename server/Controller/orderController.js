@@ -311,6 +311,7 @@
 //       .json({ message: "Error placing order", error: error.message });
 //   }
 // };
+
 const { generatePDF } = require('../utils/GenerateInvoice');
 const { uploadPDFToCloudinary } = require('../utils/uploadPdf');
 const {

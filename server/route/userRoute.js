@@ -13,3 +13,5 @@ router
 router.route('/admins').get(authMiddleware, userController.getAllAdmins);
 
 module.exports = router;
+
+

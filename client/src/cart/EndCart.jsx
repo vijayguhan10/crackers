@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { jwtDecode } from "jwt-decode";
 
 const EndCart = ({
+  showPopup,
+  gifts,
+  quantities,
   id,
   setPdfUrl,
   cart,
@@ -16,33 +19,41 @@ const EndCart = ({
   setCart,
 }) => {
   console.log("id : ", id);
+  useEffect(() => {
+    console.log(
+      "consoling the data in the endpopup for the giftbox : 😂 ",
+      showPopup,
+      quantities
+    );
+  }, [showPopup, gifts, quantities]);
+  var token = localStorage.getItem("cracker_token");
+  const [savedData, setSavedData] = useState(null);
   const [isGSTEnabled, setIsGSTEnabled] = useState(false);
   const [gstPercentage, setGstPercentage] = useState(18);
   const gstAmount = isGSTEnabled ? (total * gstPercentage) / 100 : 0;
   const calculatedGrandTotal = grandTotal + gstAmount;
+  var requestData = {
+    id: id,
+    products: cart.map((item) => ({
+      productId: item._id,
+      quantity: item.quantity,
+    })),
+    giftboxes: [],
+    discount,
+    total,
+    gst: {
+      status: isGSTEnabled,
+      percentage: gstPercentage,
+      amount: gstAmount.toFixed(2),
+    },
+    grandtotal: calculatedGrandTotal.toFixed(2),
+  };
   const handleCheckout = async () => {
     if (cart.length === 0) {
       toast.error("Cart is empty! Add items to proceed.");
       return;
     }
 
-    const requestData = {
-      id: id,
-      products: cart.map((item) => ({
-        productId: item._id,
-        quantity: item.quantity,
-      })),
-      discount,
-      total,
-      gst: {
-        status: isGSTEnabled,
-        percentage: gstPercentage,
-        amount: gstAmount.toFixed(2),
-      },
-      grandtotal: calculatedGrandTotal.toFixed(2),
-    };
-    const token = localStorage.getItem("cracker_token");
-    const decoded = jwtDecode(token);
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_BASEURL}/order/place-order`,
@@ -69,6 +80,33 @@ const EndCart = ({
     } catch (error) {
       console.error("Error placing order:", error);
       toast.error("Failed to place order. Please try again.");
+    }
+  };
+  const handleSave = async () => {
+    if (cart.length === 0) {
+      toast.error("Cart is empty! Add items to save.");
+      return;
+    }
+
+    setSavedData(requestData);
+
+    try {
+      const token = localStorage.getItem("cracker_token");
+      const response = await axios.post(
+        `${process.env.REACT_APP_BASEURL}/save`,
+        requestData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status === 200 || response.status === 201) {
+        toast.success("Data saved successfully!");
+      }
+    } catch (error) {
+      console.error("Error saving data:", error);
+      toast.error("Failed to save data. Please try again.");
     }
   };
 
@@ -164,16 +202,22 @@ const EndCart = ({
 
               <div className="flex gap-4 mt-6">
                 <button
-                  onClick={() => setCart([])}
-                  className="flex-1 bg-gray-200 py-2 rounded-lg hover:bg-gray-300"
-                >
-                  Clear
-                </button>
-                <button
                   onClick={handleCheckout}
                   className="flex-1 bg-gray-800 text-white py-2 rounded-lg hover:bg-gray-700"
                 >
-                  Proceed To Checkout
+                  Checkout
+                </button>
+                <button
+                  onClick={handleSave}
+                  className="flex-1 bg-green-800 text-white py-2 rounded-lg hover:bg-gray-700"
+                >
+                  save
+                </button>
+                <button
+                  onClick={() => setCart([])}
+                  className="flex-1 bg-red-600 py-2 rounded-lg hover:bg-red-300 text-white"
+                >
+                  Clear
                 </button>
               </div>
             </div>

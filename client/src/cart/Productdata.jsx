@@ -4,18 +4,19 @@ import { FaMoneyBill } from "react-icons/fa";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { Loader } from "lucide-react";
+import GiftPopup from "./GiftPopup";
 
 function App() {
   const { id } = useParams();
   console.log("consoling the useparams id : ", id);
+  const [showPopup, setShowPopup] = useState(false);
+  const [quantities, setQuantities] = useState({});
   const [cart, setCart] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [discount, setDiscount] = useState(50);
   const [products, SetProducts] = useState([]);
   const [Loading, setLoading] = useState(false);
   const [PdfUrl, setPdfUrl] = useState("");
-
-  // Fetching Products from API
   const getProducts = async () => {
     const token = localStorage.getItem("cracker_token");
 
@@ -43,7 +44,6 @@ function App() {
     getProducts();
   }, []);
 
-  // Add item to the cart
   const addToCart = (cracker) => {
     const existingItem = cart.find((item) => item._id === cracker._id);
     if (existingItem) {
@@ -59,7 +59,6 @@ function App() {
     }
   };
 
-  // Update item quantity in the cart
   const updateQuantity = (_id, delta) => {
     setCart(
       cart
@@ -82,7 +81,7 @@ function App() {
   const grandTotal = total * (1 - discount / 100);
 
   return (
-    <div className="min-h-screen bg-gray-50 ml-[16.7%] overflow-hidden">
+    <div className="min-h-screen bg-gray-50 ml-[16.7%] overflow-hidden ">
       <div>
         <header className="bg-[#4ADE80] text-white p-4">
           <div className="container mx-auto flex justify-between items-center">
@@ -114,7 +113,12 @@ function App() {
               />
             </div>
             <button className="bg-[#6be196] text-white px-4 py-2 rounded-lg hover:bg-[#4ADE80]">
-              + Add Crackers
+              <GiftPopup
+                showPopup={showPopup}
+                setShowPopup={setShowPopup}
+                quantities={quantities}
+                setQuantities={setQuantities}
+              />
             </button>
           </div>
 
@@ -177,6 +181,8 @@ function App() {
           </div>
         </div>
         <Endcart
+          showPopup={showPopup}
+          quantities={quantities}
           id={id}
           setPdfUrl={setPdfUrl}
           cart={cart}

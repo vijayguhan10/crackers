@@ -5,6 +5,7 @@ const productSchema = require('../Model/Product');
 const companySchema = require('../Model/Company');
 const giftBoxSchema = require('../Model/GiftBox');
 const userSchema = require('../Model/User');
+const cartSchema = require('../Model/Cart');
 
 const connectionCache = {};
 
@@ -38,3 +39,4 @@ exports.getProductModel = (db) => db.model('Product', productSchema);
 exports.getCompanyModel = (db) => db.model('Company', companySchema);
 exports.getGiftBoxModel = (db) => db.model('GiftBox', giftBoxSchema);
 exports.getUserModel = (db) => db.model('User', userSchema);
+exports.getCartModel = (db) => db.model('Cart', cartSchema);

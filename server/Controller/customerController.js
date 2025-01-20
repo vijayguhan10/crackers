@@ -171,3 +171,99 @@ exports.updateCustomer = async (req, res) => {
 //       .json({ message: 'Error changing customer state', error: error.message });
 //   }
 // };
+
+exports.getCustomersWithOrderDetails = async (req, res) => {
+  try {
+    if (req.user.role !== 'subadmin') {
+      return res
+        .status(401)
+        .json({ message: 'Unauthorized to view customer details.' });
+    }
+
+    const db = req.db;
+    const Customer = getCustomerModel(db);
+
+    const customers = await Customer.aggregate([
+      {
+        $match: { orders: { $exists: true, $ne: [] } }
+      },
+      {
+        $lookup: {
+          from: 'orders',
+          localField: 'orders.id',
+          foreignField: '_id',
+          as: 'orderDetails'
+        }
+      },
+      {
+        $unwind: {
+          path: '$orderDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          address: 1,
+          phone: 1,
+          status: 1,
+          createdAt: 1,
+          'orderDetails.id': 1,
+          'orderDetails.createdat': 1,
+          'orderDetails.grandtotal': 1,
+          'orderDetails.invoicepdf': 1
+        }
+      },
+      {
+        $sort: { 'orderDetails.createdat': -1 }
+      },
+      {
+        $group: {
+          _id: '$_id',
+          name: { $first: '$name' },
+          address: { $first: '$address' },
+          phone: { $first: '$phone' },
+          status: { $first: '$status' },
+          createdAt: { $first: '$createdAt' },
+          orders: { $push: '$orderDetails' }
+        }
+      }
+    ]);
+
+    const formattedCustomers = customers.map((customer) => {
+      const latestOrder =
+        customer.orders.length > 0 ? customer.orders[0] : null;
+      const latestOrderDate = latestOrder ? latestOrder.createdat : null;
+
+      return {
+        _id: customer._id,
+        name: customer.name,
+        address: customer.address,
+        phone: customer.phone,
+        status: customer.status,
+        createdAt: customer.createdAt,
+        latestOrderDate,
+        orders: customer.orders.map((order) => ({
+          id: order.id,
+          createdat: order.createdat,
+          grandtotal: order.grandtotal,
+          invoicepdf: order.invoicepdf
+        }))
+      };
+    });
+
+    const sortedCustomers = formattedCustomers.sort((a, b) => {
+      const dateA = a.latestOrderDate ? new Date(a.latestOrderDate) : 0;
+      const dateB = b.latestOrderDate ? new Date(b.latestOrderDate) : 0;
+      return dateB - dateA;
+    });
+
+    res.status(200).json(sortedCustomers);
+  } catch (error) {
+    res.status(500).json({
+      message: 'Error fetching customers with order details',
+      error: error.message
+    });
+  }
+};

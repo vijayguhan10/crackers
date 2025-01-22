@@ -203,52 +203,39 @@ exports.getDashboardStats = async (req, res) => {
     }));
 
     const currentDate = new Date();
-    const oneYearAgo = new Date(
-      currentDate.setFullYear(currentDate.getFullYear() - 1)
-    );
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth() + 1;
 
-    const monthlyRevenue = await Order.aggregate([
+    const yearlyMonthlyRevenue = await Order.aggregate([
       {
         $match: {
-          createdat: { $gte: oneYearAgo }
+          createdat: {
+            $gte: new Date(`${currentYear}-01-01`),
+            $lt: new Date(`${currentYear + 1}-01-01`)
+          }
         }
       },
       {
         $group: {
-          _id: { $month: '$createdat' },
+          _id: { month: { $month: '$createdat' } },
           revenue: { $sum: '$grandtotal' }
         }
       },
-      {
-        $sort: { _id: 1 }
-      }
+      { $sort: { '_id.month': 1 } }
     ]);
 
     const monthlyRevenueData = Array(12).fill(0);
-    monthlyRevenue.forEach(({ _id, revenue }) => {
-      monthlyRevenueData[_id - 1] = revenue;
+    yearlyMonthlyRevenue.forEach(({ _id, revenue }) => {
+      monthlyRevenueData[_id.month - 1] = revenue;
     });
 
-    const firstDayOfMonth = new Date(new Date().setDate(1));
-    const currentMonthRevenue = await Order.aggregate([
-      {
-        $match: {
-          createdat: { $gte: firstDayOfMonth }
-        }
-      },
-      {
-        $group: {
-          _id: null,
-          revenue: { $sum: '$grandtotal' }
-        }
-      }
-    ]);
+    const currentMonthRevenue = monthlyRevenueData[currentMonth - 1];
 
     res.status(200).json({
       totalRevenue: totalRevenue[0]?.totalRevenue || 0,
       totalInvoices,
       totalCustomers,
-      currentMonthRevenue: currentMonthRevenue[0]?.revenue || 0,
+      currentMonthRevenue,
       topOrders: formattedTop3Orders,
       monthlyRevenue: monthlyRevenueData
     });

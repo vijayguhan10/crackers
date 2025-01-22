@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Menu,
   FileText,
@@ -13,31 +13,35 @@ import StatCard from "./StatCard";
 import RevenueChart from "./RevenueChart";
 import SalesOverview from "./SalesOverview";
 import RecentInvoices from "./RecentInvoices";
-
+import axios from "axios";
 function App({ userName }) {
-  // const fetchCustomers = async () => {
-  //   const token = localStorage.getItem("cracker_token");
-  //   try {
-  //     const response = await axios.get(
-  //       `${process.env.REACT_APP_BASEURL}/customer/`,
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       }
-  //     );
-  //     console.log("fetched all customer : ", response.data);
-  //     if (response.status === 200) {
-  //       setCustomers(response.data);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching customers:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  const [loading, setLoading] = useState(true);
+  const [Dashboard, setDashboard] = useState([]);
+  const fetchDashboard = async () => {
+    const token = localStorage.getItem("cracker_token");
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_BASEURL}/order/stats`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log("DashBoard Data : ", response.data);
+      if (response.status === 200) {
+        setDashboard(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching customers:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
+  useEffect(() => {
+    fetchDashboard();
+  }, []);
   return (
     <div className="min-h-screen bg-gray-100">
       <div
@@ -72,21 +76,21 @@ function App({ userName }) {
           <StatCard
             icon={<LayoutDashboard className="w-6 h-6 text-white" />}
             title="Total Revenue"
-            value="₹ 29,07,390"
+            value={`₹${Dashboard.totalRevenue}`}
             change={5.2}
             iconColor="bg-green-500"
           />
           <StatCard
             icon={<FileText className="w-6 h-6 text-white" />}
             title="Invoices"
-            value="3,390"
+            value={Dashboard.totalInvoices}
             change={2.2}
             iconColor="bg-red-500"
           />
           <StatCard
             icon={<Users className="w-6 h-6 text-white" />}
             title="Customers"
-            value="1,670"
+            value={Dashboard.totalCustomers}
             change={-3.1}
             iconColor="bg-green-500"
           />
@@ -102,7 +106,10 @@ function App({ userName }) {
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           <div className="lg:col-span-2">
-            <RevenueChart />
+            <RevenueChart
+              currentMonth={Dashboard.currentMonthRevenue}
+              monthlyRevenue={Dashboard.monthlyRevenue}
+            />
           </div>
           <div>
             <SalesOverview />
@@ -111,7 +118,7 @@ function App({ userName }) {
 
         {/* Recent Invoices */}
         <div className="grid grid-cols-1 gap-6">
-          <RecentInvoices />
+          <RecentInvoices invoices={Dashboard.topOrders} />
         </div>
       </div>
     </div>

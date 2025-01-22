@@ -60,7 +60,7 @@ const InitialRouter = () => {
       <Route path="/" element={<Signup />} />
       <Route path="/dashboard" element={<Dashboard userName={Name} />} />
       <Route path="/History" element={<CustomerHistory />} />
-      <Route path="/billing/:id" element={<Billing />} />
+      <Route path="/billing/:id/:name" element={<Billing />} />
       <Route path="/stocks" element={<StockTable />} />
       <Route path="/customer" element={<CustomerData />} />
       <Route path="/settings" element={<UserSettings />} />

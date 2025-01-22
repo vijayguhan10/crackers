@@ -92,7 +92,7 @@ function Index() {
             >
               <CustomerCard customer={customer} />
               <Link
-                to={`/billing/${customer._id}`} // Pass the _id as a URL parameter
+                to={`/billing/${customer._id}/${customer.name}`} 
                 className="mt-auto bg-yellow-400 rounded-lg text-black px-2 w-24 py-2 text-center"
               >
                 Billing

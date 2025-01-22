@@ -7,7 +7,7 @@ import { Loader } from "lucide-react";
 import GiftPopup from "./GiftPopup";
 function App() {
   const [gifts, setGifts] = useState([]);
-  const { id } = useParams();
+  const { id, name } = useParams();
   const [SelectedGift, SetSelectedGift] = useState([]);
   console.log("consoling the useparams id : ", id);
   const [showPopup, setShowPopup] = useState(false);
@@ -185,7 +185,7 @@ function App() {
                 <FaMoneyBill color="black" />
               </span>
               <h1 className="text-2xl font-bold text-black">
-                Invoice for Vijay Guhan
+                Invoice for {name}
               </h1>
             </div>
             <div className="w-10 h-10 bg-blue-100 rounded-full"></div>
@@ -239,6 +239,7 @@ function App() {
                   <th className="p-4">Price</th>
                   <th className="p-4">Quantity</th>
                   <th className="p-4">Total</th>
+                  <th className="p-4">Edit</th>
                 </tr>
               </thead>
               <tbody className="text-center items-center">
@@ -249,7 +250,7 @@ function App() {
                       .includes(searchTerm.toLowerCase())
                   )
                   .map((cracker, index) => (
-                    <tr key={cracker._id} className="border-b ">
+                    <tr key={cracker._id} className="border-b">
                       <td className="p-4 text-2xl">{cracker.image}</td>
                       <td className="p-4">{index + 1}</td>
                       <td className="p-4">{cracker.name}</td>
@@ -269,7 +270,12 @@ function App() {
                           </span>
                           <button
                             onClick={() => addToCart(cracker)}
-                            className="bg-[#4ADE80] text-white px-2 rounded"
+                            className={`${
+                              cracker.stockavailable === 0
+                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                : "bg-[#4ADE80] text-white"
+                            } px-2 rounded`}
+                            disabled={cracker.stockavailable === 0}
                           >
                             +
                           </button>
@@ -279,6 +285,11 @@ function App() {
                         Rs.
                         {(cart.find((item) => item._id === cracker._id)
                           ?.quantity || 0) * cracker.price}
+                      </td>
+                      <td>
+                        <button className="bg-[#6be196] text-black px-4 py-2 rounded-lg hover:bg-[#4ADE80]">
+                          Edit
+                        </button>
                       </td>
                     </tr>
                   ))}

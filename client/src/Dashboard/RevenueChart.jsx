@@ -19,7 +19,8 @@ ChartJS.register(
   Legend
 );
 
-const RevenueChart = () => {
+const RevenueChart = ({ currentMonth, monthlyRevenue }) => {
+  console.log("currentMonth", currentMonth);
   const data = {
     labels: [
       "Jan",
@@ -38,14 +39,14 @@ const RevenueChart = () => {
     datasets: [
       {
         label: "Revenue",
-        data: [70, 40, 35, 40, 65, 80, 65, 60, 50, 90, 100, 120],
+        data: monthlyRevenue,
         borderColor: "#4ADE80",
         backgroundColor: "rgba(74, 222, 128, 0.2)",
         pointBackgroundColor: "#FFFFFF",
         pointBorderColor: "#4ADE80",
         pointHoverBackgroundColor: "#4ADE80",
         pointHoverBorderColor: "#FFFFFF",
-        tension: 0.3, 
+        tension: 0.3,
         fill: true,
       },
     ],
@@ -84,7 +85,7 @@ const RevenueChart = () => {
     <div className="bg-white p-6 rounded-xl shadow-sm w-full">
       <div className="mb-4">
         <h3 className="text-gray-500 text-sm">Monthly Revenue</h3>
-        <p className="text-2xl font-semibold mt-1">₹ 90,000</p>
+        <p className="text-2xl font-semibold mt-1">₹ {currentMonth}</p>
       </div>
 
       {/* Chart container */}

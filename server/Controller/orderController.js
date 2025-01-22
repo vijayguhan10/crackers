@@ -173,7 +173,7 @@ exports.getDashboardStats = async (req, res) => {
     if (req.user.role !== 'subadmin') {
       return res
         .status(401)
-        .json({ message: 'Unauthorized to place an order.' });
+        .json({ message: 'Unauthorized to access dashboard stats.' });
     }
 
     const db = req.db;
@@ -191,7 +191,16 @@ exports.getDashboardStats = async (req, res) => {
     const top3Orders = await Order.find()
       .sort({ createdat: -1 })
       .limit(3)
-      .select('customer grandtotal createdat');
+      .populate('customer', 'name')
+      .select('_id createdat customer grandtotal invoicepdf');
+
+    const formattedTop3Orders = top3Orders.map((order) => ({
+      id: order._id,
+      date: order.createdat,
+      customerName: order.customer.name,
+      amount: order.grandtotal,
+      invoiceLink: order.invoicepdf
+    }));
 
     const currentDate = new Date();
     const oneYearAgo = new Date(
@@ -220,11 +229,27 @@ exports.getDashboardStats = async (req, res) => {
       monthlyRevenueData[_id - 1] = revenue;
     });
 
+    const firstDayOfMonth = new Date(new Date().setDate(1));
+    const currentMonthRevenue = await Order.aggregate([
+      {
+        $match: {
+          createdat: { $gte: firstDayOfMonth }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          revenue: { $sum: '$grandtotal' }
+        }
+      }
+    ]);
+
     res.status(200).json({
       totalRevenue: totalRevenue[0]?.totalRevenue || 0,
       totalInvoices,
       totalCustomers,
-      top3Orders,
+      currentMonthRevenue: currentMonthRevenue[0]?.revenue || 0,
+      topOrders: formattedTop3Orders,
       monthlyRevenue: monthlyRevenueData
     });
   } catch (err) {

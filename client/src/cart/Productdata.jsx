@@ -5,21 +5,23 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import { Loader } from "lucide-react";
 import GiftPopup from "./GiftPopup";
-
 function App() {
-  var ReturnCart;
   const [gifts, setGifts] = useState([]);
   const { id } = useParams();
   const [SelectedGift, SetSelectedGift] = useState([]);
   console.log("consoling the useparams id : ", id);
   const [showPopup, setShowPopup] = useState(false);
-  const [quantities, setQuantities] = useState({});
+  // const [quantities, setQuantities] = useState({});
   const [cart, setCart] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [discount, setDiscount] = useState(50);
   const [products, SetProducts] = useState([]);
   const [Loading, setLoading] = useState(false);
   const [PdfUrl, setPdfUrl] = useState("");
+
+  const [isGSTEnabled, setIsGSTEnabled] = useState(false);
+  const [gstPercentage, setGstPercentage] = useState(18);
+
   const fetchGiftData = async () => {
     try {
       console.log("triggered");
@@ -35,11 +37,11 @@ function App() {
       );
       // console.log("response  : ", response);
       setGifts(response.data);
-      const initialQuantities = {};
-      response.data.forEach((item) => {
-        initialQuantities[item._id] = 0;
-      });
-      setQuantities(initialQuantities);
+      // const initialQuantities = {};
+      // response.data.forEach((item) => {
+      //   initialQuantities[item._id] = 0;
+      // });
+      // setQuantities(initialQuantities);
     } catch (error) {
       console.error("Error fetching gift data:", error);
     }
@@ -84,44 +86,54 @@ function App() {
           },
         }
       );
-      ReturnCart = response.data;
-      setDiscount(ReturnCart.discount);
 
-      // console.log("Existing Cart Data of the Customer", response.data);
+      const ReturnCart = response.data;
+      setDiscount(ReturnCart.discount);
+      setIsGSTEnabled(ReturnCart.gst.status);
+      setGstPercentage(ReturnCart.gst.percentage);
       const CartProducts = [];
       for (let i = 0; i < response.data.products.length; i++) {
         const cartItem = response.data.products[i];
-        // console.log("consoling the products : ", products);
-        const product = products.find((product) => {
-          console.log(product);
-          return String(product._id) === String(cartItem.productId);
-        });
-        // console.log("product DATA: ", CartProducts);
+        console.log("Cart item being processed:", cartItem);
+        const product = products.find(
+          (product) => String(product._id) === String(cartItem.productId)
+        );
         if (product) {
+          product.quantity = cartItem.quantity;
           CartProducts.push(product);
         }
       }
+
       const GiftProducts = [];
       for (let i = 0; i < response.data.giftboxes.length; i++) {
         const cartItem = response.data.giftboxes[i];
-        const GIFT = gifts.find((product) => {
-          console.log(product);
-          return String(product._id) === String(cartItem.giftBoxId);
-        });
-        // console.log("Consoling the GIFT on Cart: ", GiftProducts);
+        console.log("Giftbox item being processed:", cartItem);
+        const GIFT = gifts.find(
+          (gift) => String(gift._id) === String(cartItem.giftBoxId)
+        );
         if (GIFT) {
+          GIFT.quantity = cartItem.quantity;
           GiftProducts.push(GIFT);
         }
       }
+      // console.log("Processed Cart Products:", CartProducts);
+      // console.log("Processed Gift Products:", GiftProducts);
 
-      console.log("GIFT  data : ", GiftProducts);
-      console.log("CART  data : ", CartProducts);
+      setCart(CartProducts);
+      SetSelectedGift(GiftProducts);
     } catch (error) {
       console.error("Error fetching products: ", error);
     } finally {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    console.log("Updated Cart State:", cart);
+  }, [cart]);
+
+  useEffect(() => {
+    console.log("Updated Gift State:", SelectedGift);
+  }, [SelectedGift]);
 
   useEffect(() => {
     getProducts();
@@ -131,6 +143,7 @@ function App() {
       getcartdata();
     }
   }, [products, gifts]);
+
   const addToCart = (cracker) => {
     const existingItem = cart.find((item) => item._id === cracker._id);
     if (existingItem) {
@@ -161,8 +174,6 @@ function App() {
   const removeFromCart = (_id) => {
     setCart(cart.filter((item) => item._id !== _id));
   };
-
-  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
     <div className="min-h-screen bg-gray-50 ml-[16.7%] overflow-hidden ">
@@ -205,13 +216,14 @@ function App() {
             </div>
             <button className="bg-[#6be196] text-white px-4 py-2 rounded-lg hover:bg-[#4ADE80]">
               <GiftPopup
-                SetSelectedGift={SetSelectedGift}
+                SelectedGifts={SelectedGift}
+                setSelectedGifts={SetSelectedGift}
                 gifts={gifts}
-                setGifts={setGifts}
+                // setGifts={setGifts}
                 showPopup={showPopup}
                 setShowPopup={setShowPopup}
-                quantities={quantities}
-                setQuantities={setQuantities}
+                // quantities={quantities}
+                // setQuantities={setQuantities}
               />
             </button>
           </div>
@@ -278,15 +290,18 @@ function App() {
           SetSelectedGift={SetSelectedGift}
           SelectedGift={SelectedGift}
           showPopup={showPopup}
-          quantities={quantities}
+          // quantities={quantities}
           id={id}
           setPdfUrl={setPdfUrl}
           cart={cart}
-          total={total}
           removeFromCart={removeFromCart}
           discount={discount}
           setDiscount={setDiscount}
           setCart={setCart}
+          isGSTEnabled={isGSTEnabled}
+          setIsGSTEnabled={setIsGSTEnabled}
+          gstPercentage={gstPercentage}
+          setGstPercentage={setGstPercentage}
         />
       </div>
 

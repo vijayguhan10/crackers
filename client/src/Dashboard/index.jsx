@@ -15,6 +15,27 @@ import SalesOverview from "./SalesOverview";
 import RecentInvoices from "./RecentInvoices";
 
 function App({ userName }) {
+  // const fetchCustomers = async () => {
+  //   const token = localStorage.getItem("cracker_token");
+  //   try {
+  //     const response = await axios.get(
+  //       `${process.env.REACT_APP_BASEURL}/customer/`,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
+  //     console.log("fetched all customer : ", response.data);
+  //     if (response.status === 200) {
+  //       setCustomers(response.data);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching customers:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -34,9 +55,7 @@ function App({ userName }) {
         <Sidebar />
       </div>
 
-      {/* Main Content */}
       <div className="md:ml-64 p-6">
-        {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <button
             className="md:hidden p-2 hover:bg-gray-200 rounded-lg"
@@ -49,7 +68,6 @@ function App({ userName }) {
           </div>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
           <StatCard
             icon={<LayoutDashboard className="w-6 h-6 text-white" />}

@@ -2,33 +2,34 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { jwtDecode } from "jwt-decode";
 const EndCart = ({
   SetSelectedGift,
   SelectedGift,
   showPopup,
   gifts,
-  quantities,
   id,
   setPdfUrl,
   cart,
-  total,
   discount,
   setDiscount,
   setCart,
+  isGSTEnabled,
+  setIsGSTEnabled,
+  gstPercentage,
+  setGstPercentage,
 }) => {
   console.log("id : ", id);
   useEffect(() => {
     console.log(
       "consoling the data in the endpopup for the giftbox : 😂 ",
       showPopup,
-      quantities
+      SelectedGift
     );
-  }, [showPopup, gifts, quantities]);
+  }, [showPopup, gifts, SelectedGift]);
   var token = localStorage.getItem("cracker_token");
   const [savedData, setSavedData] = useState(null);
-  const [isGSTEnabled, setIsGSTEnabled] = useState(false);
-  const [gstPercentage, setGstPercentage] = useState(18);
+  // const [isGSTEnabled, setIsGSTEnabled] = useState(false);
+  // const [gstPercentage, setGstPercentage] = useState(18);
   const selectedGiftTotal = SelectedGift.reduce(
     (sum, item) => sum + item.grandtotal * item.quantity,
     0
@@ -55,9 +56,8 @@ const EndCart = ({
       giftBoxId: item._id,
       quantity: item.quantity,
     })),
-
     discount,
-    total,
+    total: updatedTotal,
     gst: {
       status: isGSTEnabled,
       percentage: gstPercentage,
@@ -66,7 +66,7 @@ const EndCart = ({
     grandtotal: calculatedGrandTotal.toFixed(2),
   };
   const handleCheckout = async () => {
-    if (cart.length === 0) {
+    if (cart.length === 0 && SelectedGift.length === 0) {
       toast.error("Cart is empty! Add items to proceed.");
       return;
     }
@@ -88,6 +88,7 @@ const EndCart = ({
         setPdfUrl(response.data.invoiceurl);
         toast.success("Order placed successfully!");
         setCart([]);
+        SetSelectedGift([]);
 
         window.scrollTo({
           top: document.documentElement.scrollHeight,
@@ -100,7 +101,7 @@ const EndCart = ({
     }
   };
   const handleSave = async () => {
-    if (cart.length === 0) {
+    if (cart.length === 0 && SelectedGift.length === 0) {
       toast.error("Cart is empty! Add items to save.");
       return;
     }
@@ -164,8 +165,8 @@ const EndCart = ({
                     </tr>
                   ))}
                   {SelectedGift.map((item, index) => {
-                    const itemtotal = item.grandtotal * item.quantity;
-                    total += itemtotal;
+                    // const itemtotal = item.grandtotal * item.quantity;
+                    // total += itemtotal;
                     return (
                       <tr key={item._id} className="border-b text-nowrap">
                         <td className="p-2">{cart.length + index + 1}</td>
@@ -228,7 +229,7 @@ const EndCart = ({
 
               <div className="flex justify-between mb-2">
                 <span>TOTAL:</span>
-                <span>Rs. {total}</span>
+                <span>Rs. {updatedTotal}</span>
               </div>
               {isGSTEnabled && (
                 <div className="flex justify-between mb-2">

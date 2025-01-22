@@ -7,7 +7,10 @@ import { Loader } from "lucide-react";
 import GiftPopup from "./GiftPopup";
 
 function App() {
+  var ReturnCart;
+  const [gifts, setGifts] = useState([]);
   const { id } = useParams();
+  const [SelectedGift, SetSelectedGift] = useState([]);
   console.log("consoling the useparams id : ", id);
   const [showPopup, setShowPopup] = useState(false);
   const [quantities, setQuantities] = useState({});
@@ -17,6 +20,35 @@ function App() {
   const [products, SetProducts] = useState([]);
   const [Loading, setLoading] = useState(false);
   const [PdfUrl, setPdfUrl] = useState("");
+  const fetchGiftData = async () => {
+    try {
+      console.log("triggered");
+      const token = localStorage.getItem("cracker_token");
+
+      const response = await axios.get(
+        `${process.env.REACT_APP_BASEURL}/giftbox/active`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      // console.log("response  : ", response);
+      setGifts(response.data);
+      const initialQuantities = {};
+      response.data.forEach((item) => {
+        initialQuantities[item._id] = 0;
+      });
+      setQuantities(initialQuantities);
+    } catch (error) {
+      console.error("Error fetching gift data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchGiftData();
+  }, []);
+
   const getProducts = async () => {
     const token = localStorage.getItem("cracker_token");
 
@@ -31,8 +63,59 @@ function App() {
         }
       );
 
-      console.log("Fetched products: ", response.data);
+      // console.log("Fetched products: ", response.data);
       SetProducts(response.data);
+    } catch (error) {
+      console.error("Error fetching products: ", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const getcartdata = async () => {
+    const token = localStorage.getItem("cracker_token");
+
+    try {
+      setLoading(true);
+      const response = await axios.get(
+        `${process.env.REACT_APP_BASEURL}/cart/pending/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      ReturnCart = response.data;
+      setDiscount(ReturnCart.discount);
+
+      // console.log("Existing Cart Data of the Customer", response.data);
+      const CartProducts = [];
+      for (let i = 0; i < response.data.products.length; i++) {
+        const cartItem = response.data.products[i];
+        // console.log("consoling the products : ", products);
+        const product = products.find((product) => {
+          console.log(product);
+          return String(product._id) === String(cartItem.productId);
+        });
+        // console.log("product DATA: ", CartProducts);
+        if (product) {
+          CartProducts.push(product);
+        }
+      }
+      const GiftProducts = [];
+      for (let i = 0; i < response.data.giftboxes.length; i++) {
+        const cartItem = response.data.giftboxes[i];
+        const GIFT = gifts.find((product) => {
+          console.log(product);
+          return String(product._id) === String(cartItem.giftBoxId);
+        });
+        // console.log("Consoling the GIFT on Cart: ", GiftProducts);
+        if (GIFT) {
+          GiftProducts.push(GIFT);
+        }
+      }
+
+      console.log("GIFT  data : ", GiftProducts);
+      console.log("CART  data : ", CartProducts);
     } catch (error) {
       console.error("Error fetching products: ", error);
     } finally {
@@ -43,7 +126,11 @@ function App() {
   useEffect(() => {
     getProducts();
   }, []);
-
+  useEffect(() => {
+    if (products.length > 0 && gifts.length > 0) {
+      getcartdata();
+    }
+  }, [products, gifts]);
   const addToCart = (cracker) => {
     const existingItem = cart.find((item) => item._id === cracker._id);
     if (existingItem) {
@@ -71,14 +158,11 @@ function App() {
     );
   };
 
-  // Remove item from the cart
   const removeFromCart = (_id) => {
     setCart(cart.filter((item) => item._id !== _id));
   };
 
-  // Calculate total and grand total
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const grandTotal = total * (1 - discount / 100);
 
   return (
     <div className="min-h-screen bg-gray-50 ml-[16.7%] overflow-hidden ">
@@ -98,6 +182,13 @@ function App() {
         </header>
       </div>
       <div className="container mx-auto p-4 flex flex-col lg:flex-row gap-6">
+        {showPopup && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-40"
+            style={{ marginLeft: "16.7%" }}
+            onClick={() => setShowPopup(false)}
+          />
+        )}
         <div className="lg:w-full lg:h-[1000px]">
           <div className="flex items-center gap-4 mb-6">
             <h2 className="text-2xl font-bold flex items-center gap-2">
@@ -114,6 +205,9 @@ function App() {
             </div>
             <button className="bg-[#6be196] text-white px-4 py-2 rounded-lg hover:bg-[#4ADE80]">
               <GiftPopup
+                SetSelectedGift={SetSelectedGift}
+                gifts={gifts}
+                setGifts={setGifts}
                 showPopup={showPopup}
                 setShowPopup={setShowPopup}
                 quantities={quantities}
@@ -181,13 +275,14 @@ function App() {
           </div>
         </div>
         <Endcart
+          SetSelectedGift={SetSelectedGift}
+          SelectedGift={SelectedGift}
           showPopup={showPopup}
           quantities={quantities}
           id={id}
           setPdfUrl={setPdfUrl}
           cart={cart}
           total={total}
-          grandTotal={grandTotal}
           removeFromCart={removeFromCart}
           discount={discount}
           setDiscount={setDiscount}

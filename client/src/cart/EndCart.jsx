@@ -3,8 +3,9 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { jwtDecode } from "jwt-decode";
-
 const EndCart = ({
+  SetSelectedGift,
+  SelectedGift,
   showPopup,
   gifts,
   quantities,
@@ -12,8 +13,6 @@ const EndCart = ({
   setPdfUrl,
   cart,
   total,
-  grandTotal,
-  removeFromCart,
   discount,
   setDiscount,
   setCart,
@@ -30,15 +29,33 @@ const EndCart = ({
   const [savedData, setSavedData] = useState(null);
   const [isGSTEnabled, setIsGSTEnabled] = useState(false);
   const [gstPercentage, setGstPercentage] = useState(18);
-  const gstAmount = isGSTEnabled ? (total * gstPercentage) / 100 : 0;
+  const selectedGiftTotal = SelectedGift.reduce(
+    (sum, item) => sum + item.grandtotal * item.quantity,
+    0
+  );
+  const updatedTotal =
+    cart.reduce((sum, item) => sum + item.price * item.quantity, 0) +
+    selectedGiftTotal;
+  const grandTotal = updatedTotal - updatedTotal * (discount / 100);
+  const gstAmount = isGSTEnabled ? (grandTotal * gstPercentage) / 100 : 0;
   const calculatedGrandTotal = grandTotal + gstAmount;
+  const removeFromGift = (_id, type) => {
+    SetSelectedGift(type.filter((item) => item._id !== _id));
+  };
+  const removeFromCart = (_id, type) => {
+    setCart(type.filter((item) => item._id !== _id));
+  };
   var requestData = {
     id: id,
     products: cart.map((item) => ({
       productId: item._id,
       quantity: item.quantity,
     })),
-    giftboxes: [],
+    giftboxes: SelectedGift.map((item) => ({
+      giftBoxId: item._id,
+      quantity: item.quantity,
+    })),
+
     discount,
     total,
     gst: {
@@ -93,7 +110,7 @@ const EndCart = ({
     try {
       const token = localStorage.getItem("cracker_token");
       const response = await axios.post(
-        `${process.env.REACT_APP_BASEURL}/save`,
+        `${process.env.REACT_APP_BASEURL}/cart/save`,
         requestData,
         {
           headers: {
@@ -123,9 +140,9 @@ const EndCart = ({
                 <thead className="bg-gray-800 sticky top-0 z-10 text-white">
                   <tr>
                     <th className="p-2">S.No</th>
-                    <th className="p-2">Name</th>
+                    <th className="p-2  text-wrap">Name</th>
                     <th className="p-2">Quantity</th>
-                    <th className="p-2 text-nowrap">Sub Total</th>
+                    <th className="p-2">Sub Total</th>
                     <th className="p-2"></th>
                   </tr>
                 </thead>
@@ -133,12 +150,12 @@ const EndCart = ({
                   {cart.map((item, index) => (
                     <tr key={item._id} className="border-b text-nowrap">
                       <td className="p-2">{index + 1}</td>
-                      <td className="p-2">{item.name}</td>
+                      <td className="p-2 text-wrap">{item.name}</td>
                       <td className="p-8">{item.quantity}</td>
                       <td className="p-4">Rs. {item.price * item.quantity}</td>
                       <td className="p-2">
                         <button
-                          onClick={() => removeFromCart(item._id)}
+                          onClick={() => removeFromCart(item._id, cart)}
                           className="bg-gray-200 p-1 rounded"
                         >
                           🗑️
@@ -146,6 +163,30 @@ const EndCart = ({
                       </td>
                     </tr>
                   ))}
+                  {SelectedGift.map((item, index) => {
+                    const itemtotal = item.grandtotal * item.quantity;
+                    total += itemtotal;
+                    return (
+                      <tr key={item._id} className="border-b text-nowrap">
+                        <td className="p-2">{cart.length + index + 1}</td>
+                        <td className="p-2 text-wrap">{item.name}</td>
+                        <td className="p-8">{item.quantity}</td>
+                        <td className="p-4">
+                          Rs. {item.grandtotal * item.quantity}
+                        </td>
+                        <td className="p-2">
+                          <button
+                            onClick={() =>
+                              removeFromGift(item._id, SelectedGift)
+                            }
+                            className="bg-gray-200 p-1 rounded"
+                          >
+                            🗑️
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

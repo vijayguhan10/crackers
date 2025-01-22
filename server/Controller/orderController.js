@@ -312,25 +312,26 @@
 //   }
 // };
 
-const { generatePDF } = require('../utils/GenerateInvoice');
-const { uploadPDFToCloudinary } = require('../utils/uploadPdf');
+const { generatePDF } = require("../utils/GenerateInvoice");
+const { uploadPDFToCloudinary } = require("../utils/uploadPdf");
 const {
+  getCartModel,
   getCompanyModel,
   getCustomerModel,
   getGiftBoxModel,
   getOrderModel,
-  getProductModel
-} = require('../utils/dbUtil');
+  getProductModel,
+} = require("../utils/dbUtil");
 
 exports.placeOrder = async (req, res) => {
   const session = await req.db.startSession();
   session.startTransaction();
 
   try {
-    if (req.user.role !== 'subadmin') {
+    if (req.user.role !== "subadmin") {
       return res
         .status(401)
-        .json({ message: 'Unauthorized to place an order.' });
+        .json({ message: "Unauthorized to place an order." });
     }
 
     const db = req.db;
@@ -339,10 +340,11 @@ exports.placeOrder = async (req, res) => {
     const Company = getCompanyModel(db);
     const Product = getProductModel(db);
     const GiftBox = getGiftBoxModel(db);
+    const Cart = getCartModel(db);
 
     const company = await Company.findOne().session(session);
     if (!company) {
-      throw new Error('Company details not found');
+      throw new Error("Company details not found");
     }
 
     const { id, products, giftboxes, discount, total, grandtotal, gst } =
@@ -350,7 +352,7 @@ exports.placeOrder = async (req, res) => {
 
     const customer = await Customer.findById(id).session(session);
     if (!customer) {
-      throw new Error('Customer not found');
+      throw new Error("Customer not found");
     }
 
     const cartItems = [];
@@ -378,7 +380,7 @@ exports.placeOrder = async (req, res) => {
         name: product.name,
         unitprice: product.price,
         quantity: quantity,
-        total: itemTotal
+        total: itemTotal,
       });
     }
     if (giftboxes) {
@@ -405,7 +407,7 @@ exports.placeOrder = async (req, res) => {
           name: giftBox.name,
           unitprice: giftBox.grandtotal,
           quantity: quantity,
-          total: boxTotal
+          total: boxTotal,
         });
       }
     }
@@ -420,14 +422,14 @@ exports.placeOrder = async (req, res) => {
       gst: {
         status: gst.status,
         percentage: gst.status ? gst.percentage : null,
-        amount: gst.status ? gst.amount : null
-      }
+        amount: gst.status ? gst.amount : null,
+      },
     });
 
     const savedOrder = await order.save({ session });
 
     customer.orders.push({
-      id: savedOrder._id
+      id: savedOrder._id,
       // grandtotal: grandtotal,
       // createdat: new Date()
     });
@@ -439,20 +441,20 @@ exports.placeOrder = async (req, res) => {
       total: order.total,
       grandtotal: order.grandtotal,
       gst: order.gst,
-      createdat: order.createdat
+      createdat: order.createdat,
     };
 
     const pdfParams = {
       companyDetails: company,
       customerDetails: customer,
-      orderDetails
+      orderDetails,
     };
 
     try {
       await generatePDF(pdfParams);
 
       const url = await uploadPDFToCloudinary(
-        './invoice.pdf',
+        "./invoice.pdf",
         company.name,
         customer.name
       );
@@ -468,20 +470,20 @@ exports.placeOrder = async (req, res) => {
       await company.save({ session });
 
       await session.commitTransaction();
-
+      await Cart.deleteOne({ id });
       res.status(200).json({
-        message: 'Order placed successfully and PDF generated',
-        invoiceurl: savedOrder.invoicepdf
+        message: "Order placed successfully and PDF generated",
+        invoiceurl: savedOrder.invoicepdf,
       });
     } catch (error) {
-      throw new Error('Failed to generate or upload the invoice PDF.');
+      throw new Error("Failed to generate or upload the invoice PDF.");
     }
   } catch (error) {
     await session.abortTransaction();
-    console.error('Error placing order:', error);
+    console.error("Error placing order:", error);
     res
       .status(500)
-      .json({ message: 'Error placing order', error: error.message });
+      .json({ message: "Error placing order", error: error.message });
   } finally {
     session.endSession();
   }

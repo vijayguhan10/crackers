@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import Dashboard from "../Dashboard/index";
 import Billing from "../cart/Productdata";
@@ -14,6 +14,7 @@ const InitialRouter = () => {
   const [Name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const token = localStorage.getItem("cracker_token");
@@ -21,11 +22,15 @@ const InitialRouter = () => {
       try {
         const decoded = jwtDecode(token);
         if (decoded.exp * 1000 > Date.now()) {
-          var userName = decoded.name;
+          const userName = decoded.name;
           setName(userName);
           console.log("user name : ", userName);
           console.log("Welcome:", userName);
-          navigate("/dashboard");
+
+          // Navigate to dashboard only if on root path
+          if (location.pathname === "/") {
+            navigate("/dashboard");
+          }
         } else {
           localStorage.removeItem("cracker_token");
         }
@@ -35,7 +40,7 @@ const InitialRouter = () => {
       }
     }
     setIsLoading(false);
-  }, []);
+  }, [navigate, location.pathname]);
 
   useEffect(() => {
     if (!isLoading) {

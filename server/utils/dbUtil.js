@@ -19,7 +19,6 @@ exports.getDatabaseConnection = (databaseName) => {
       delete connectionCache[databaseName];
     }
   }
-
   const dbLink = process.env.DATABASE.replace('<DATABASE>', databaseName);
   const connection = mongoose.createConnection(dbLink);
 

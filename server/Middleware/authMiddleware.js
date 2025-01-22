@@ -35,7 +35,7 @@ const dbMiddleware = async (req, res, next) => {
           .json({ message: "Database name missing for subadmin." });
       }
       req.db = getDatabaseConnection(dbName);
-      console.log("req.db", req.db);
+      // console.log("req.db", req.db);
     }
     next();
   } catch (error) {

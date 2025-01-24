@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const EndCart = ({
   SetSelectedGift,
   SelectedGift,
@@ -16,20 +16,18 @@ const EndCart = ({
   isGSTEnabled,
   setIsGSTEnabled,
   gstPercentage,
-  setGstPercentage,
+  setGstPercentage
 }) => {
-  console.log("id : ", id);
+  console.log('id : ', id);
   useEffect(() => {
     console.log(
-      "consoling the data in the endpopup for the giftbox : 😂 ",
+      'consoling the data in the endpopup for the giftbox : 😂 ',
       showPopup,
       SelectedGift
     );
   }, [showPopup, gifts, SelectedGift]);
-  var token = localStorage.getItem("cracker_token");
+  var token = localStorage.getItem('cracker_token');
   const [savedData, setSavedData] = useState(null);
-  // const [isGSTEnabled, setIsGSTEnabled] = useState(false);
-  // const [gstPercentage, setGstPercentage] = useState(18);
   const selectedGiftTotal = SelectedGift.reduce(
     (sum, item) => sum + item.grandtotal * item.quantity,
     0
@@ -50,24 +48,24 @@ const EndCart = ({
     id: id,
     products: cart.map((item) => ({
       productId: item._id,
-      quantity: item.quantity,
+      quantity: item.quantity
     })),
     giftboxes: SelectedGift.map((item) => ({
       giftBoxId: item._id,
-      quantity: item.quantity,
+      quantity: item.quantity
     })),
     discount,
     total: updatedTotal,
     gst: {
       status: isGSTEnabled,
       percentage: gstPercentage,
-      amount: gstAmount.toFixed(2),
+      amount: gstAmount.toFixed(2)
     },
-    grandtotal: calculatedGrandTotal.toFixed(2),
+    grandtotal: calculatedGrandTotal.toFixed(2)
   };
   const handleCheckout = async () => {
     if (cart.length === 0 && SelectedGift.length === 0) {
-      toast.error("Cart is empty! Add items to proceed.");
+      toast.error('Cart is empty! Add items to proceed.');
       return;
     }
 
@@ -77,54 +75,49 @@ const EndCart = ({
         requestData,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
-          },
+            Authorization: `Bearer ${token}`
+          }
         }
       );
-      console.log("response data after billing : ", response);
+      console.log('response data after billing : ', response);
 
-      console.log("response url : ", response.data.invoiceurl);
+      console.log('response url : ', response.data.invoiceurl);
       if (response.status === 200 || response.status === 201) {
         setPdfUrl(response.data.invoiceurl);
-        toast.success("Order placed successfully!");
+        toast.success('Order placed successfully!');
         setCart([]);
         SetSelectedGift([]);
 
         window.scrollTo({
           top: document.documentElement.scrollHeight,
-          behavior: "smooth",
+          behavior: 'smooth'
         });
       }
     } catch (error) {
-      console.error("Error placing order:", error);
-      toast.error("Failed to place order. Please try again.");
+      console.error('Error placing order:', error);
+      toast.error('Failed to place order. Please try again.');
     }
   };
   const handleSave = async () => {
-    if (cart.length === 0 && SelectedGift.length === 0) {
-      toast.error("Cart is empty! Add items to save.");
-      return;
-    }
-
     setSavedData(requestData);
 
     try {
-      const token = localStorage.getItem("cracker_token");
+      const token = localStorage.getItem('cracker_token');
       const response = await axios.post(
         `${process.env.REACT_APP_BASEURL}/cart/save`,
         requestData,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
-          },
+            Authorization: `Bearer ${token}`
+          }
         }
       );
-      if (response.status === 200 || response.status === 201) {
-        toast.success("Data saved successfully!");
+      if (response.status === 201) {
+        toast.success('Data saved successfully!');
       }
     } catch (error) {
-      console.error("Error saving data:", error);
-      toast.error("Failed to save data. Please try again.");
+      console.error('Error saving data:', error);
+      toast.error('Failed to save data. Please try again.');
     }
   };
 
@@ -165,8 +158,6 @@ const EndCart = ({
                     </tr>
                   ))}
                   {SelectedGift.map((item, index) => {
-                    // const itemtotal = item.grandtotal * item.quantity;
-                    // total += itemtotal;
                     return (
                       <tr key={item._id} className="border-b text-nowrap">
                         <td className="p-2">{cart.length + index + 1}</td>
@@ -256,7 +247,10 @@ const EndCart = ({
                   save
                 </button>
                 <button
-                  onClick={() => setCart([])}
+                  onClick={() => {
+                    setCart([]);
+                    SetSelectedGift([]);
+                  }}
                   className="flex-1 bg-red-600 py-2 rounded-lg hover:bg-red-300 text-white"
                 >
                   Clear
@@ -266,21 +260,24 @@ const EndCart = ({
           </div>
         </div>
       </div>
-      <style jsx>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 12px;
-          background-color: #f4f4f4;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background-color: #4a5568;
-          border-radius: 10px;
-          border: 3px solid #f4f4f4;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background-color: #2d3748;
-        }
-      `}</style>
-      <ToastContainer />
+      <style jsx>
+        {`
+          .custom-scrollbar::-webkit-scrollbar {
+            width: 12px;
+            background-color: #f4f4f4;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #4a5568;
+            border-radius: 10px;
+            border: 3px solid #f4f4f4;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: #2d3748;
+          }
+        `}
+      </style>
+
+      {/* <ToastContainer /> */}
     </div>
   );
 };

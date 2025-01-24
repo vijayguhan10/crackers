@@ -1,49 +1,89 @@
-import { useState, useEffect } from "react";
-import Endcart from "./EndCart";
-import { FaMoneyBill } from "react-icons/fa";
-import axios from "axios";
-import { useParams } from "react-router-dom";
-import { Loader } from "lucide-react";
-import GiftPopup from "./GiftPopup";
+import { useState, useEffect } from 'react';
+import Endcart from './EndCart';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { FaMoneyBill } from 'react-icons/fa';
+import axios from 'axios';
+import { useParams } from 'react-router-dom';
+import { Loader } from 'lucide-react';
+import GiftPopup from './GiftPopup';
 function App() {
   const [gifts, setGifts] = useState([]);
   const { id, name } = useParams();
   const [SelectedGift, SetSelectedGift] = useState([]);
-  console.log("consoling the useparams id : ", id);
+  console.log('consoling the useparams id : ', id);
   const [showPopup, setShowPopup] = useState(false);
-  // const [quantities, setQuantities] = useState({});
   const [cart, setCart] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [discount, setDiscount] = useState(50);
   const [products, SetProducts] = useState([]);
   const [Loading, setLoading] = useState(false);
-  const [PdfUrl, setPdfUrl] = useState("");
-
+  const [PdfUrl, setPdfUrl] = useState('');
   const [isGSTEnabled, setIsGSTEnabled] = useState(false);
   const [gstPercentage, setGstPercentage] = useState(18);
 
+  const [editProductId, setEditProductId] = useState(null);
+  const [updatedStock, setUpdatedStock] = useState({});
+
+  const handleEdit = (productId, stockavailable) => {
+    setEditProductId(productId);
+    setUpdatedStock((prev) => ({ ...prev, [productId]: stockavailable }));
+  };
+
+  const handleSave = async (product) => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('cracker_token');
+
+      const updatedProduct = {
+        ...product,
+        stockavailable: updatedStock[product._id]
+      };
+
+      console.log(
+        '😥😥😥 To Update Product : ',
+        product,
+        'updatedStock : ',
+        updatedStock[product._id]
+      );
+
+      await axios.patch(
+        `${process.env.REACT_APP_BASEURL}/product/update`,
+        updatedProduct,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      toast.success('Product updated successfully!');
+      setEditProductId(null);
+      getProducts();
+    } catch (error) {
+      console.error('Error updating product:', error);
+      toast.error('Failed to update product.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const fetchGiftData = async () => {
     try {
-      console.log("triggered");
-      const token = localStorage.getItem("cracker_token");
+      console.log('triggered');
+      const token = localStorage.getItem('cracker_token');
 
       const response = await axios.get(
         `${process.env.REACT_APP_BASEURL}/giftbox/active`,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
-          },
+            Authorization: `Bearer ${token}`
+          }
         }
       );
-      // console.log("response  : ", response);
       setGifts(response.data);
-      // const initialQuantities = {};
-      // response.data.forEach((item) => {
-      //   initialQuantities[item._id] = 0;
-      // });
-      // setQuantities(initialQuantities);
     } catch (error) {
-      console.error("Error fetching gift data:", error);
+      console.error('Error fetching gift data:', error);
     }
   };
 
@@ -52,7 +92,7 @@ function App() {
   }, []);
 
   const getProducts = async () => {
-    const token = localStorage.getItem("cracker_token");
+    const token = localStorage.getItem('cracker_token');
 
     try {
       setLoading(true);
@@ -60,21 +100,21 @@ function App() {
         `${process.env.REACT_APP_BASEURL}/product/active`,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
-          },
+            Authorization: `Bearer ${token}`
+          }
         }
       );
 
-      // console.log("Fetched products: ", response.data);
       SetProducts(response.data);
     } catch (error) {
-      console.error("Error fetching products: ", error);
+      console.error('Error fetching products: ', error);
     } finally {
       setLoading(false);
     }
   };
+
   const getcartdata = async () => {
-    const token = localStorage.getItem("cracker_token");
+    const token = localStorage.getItem('cracker_token');
 
     try {
       setLoading(true);
@@ -82,8 +122,8 @@ function App() {
         `${process.env.REACT_APP_BASEURL}/cart/pending/${id}`,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
-          },
+            Authorization: `Bearer ${token}`
+          }
         }
       );
 
@@ -91,84 +131,132 @@ function App() {
       setDiscount(ReturnCart.discount);
       setIsGSTEnabled(ReturnCart.gst.status);
       setGstPercentage(ReturnCart.gst.percentage);
+
       const CartProducts = [];
       for (let i = 0; i < response.data.products.length; i++) {
         const cartItem = response.data.products[i];
-        console.log("Cart item being processed:", cartItem);
+        console.log('Cart item being processed:', cartItem);
         const product = products.find(
           (product) => String(product._id) === String(cartItem.productId)
         );
+
         if (product) {
-          product.quantity = cartItem.quantity;
-          CartProducts.push(product);
+          if (product.stockavailable === 0) {
+            toast.error(
+              `Product "${product.name}" is out of stock and has been removed from the cart.`
+            );
+          } else if (cartItem.quantity > product.stockavailable) {
+            toast.warning(
+              `The quantity of "${product.name}" in the cart has been adjusted to the available stock (${product.stockavailable}).`
+            );
+            product.quantity = product.stockavailable;
+            CartProducts.push(product);
+          } else {
+            product.quantity = cartItem.quantity;
+            CartProducts.push(product);
+          }
+        } else {
+          toast.error(
+            `Product with ID "${cartItem.productId}" is no longer available.`
+          );
         }
       }
 
       const GiftProducts = [];
       for (let i = 0; i < response.data.giftboxes.length; i++) {
         const cartItem = response.data.giftboxes[i];
-        console.log("Giftbox item being processed:", cartItem);
+        console.log('Giftbox item being processed:', cartItem);
         const GIFT = gifts.find(
           (gift) => String(gift._id) === String(cartItem.giftBoxId)
         );
+
         if (GIFT) {
-          GIFT.quantity = cartItem.quantity;
-          GiftProducts.push(GIFT);
+          if (GIFT.stockavailable === 0) {
+            toast.error(
+              `Gift box "${GIFT.name}" is out of stock and has been removed from the cart.`
+            );
+          } else if (cartItem.quantity > GIFT.stockavailable) {
+            toast.warning(
+              `The quantity of gift box "${GIFT.name}" in the cart has been adjusted to the available stock (${GIFT.stockavailable}).`
+            );
+            GIFT.quantity = GIFT.stockavailable;
+            GiftProducts.push(GIFT);
+          } else {
+            GIFT.quantity = cartItem.quantity;
+            GiftProducts.push(GIFT);
+          }
+        } else {
+          toast.error(
+            `Gift box with ID "${cartItem.giftBoxId}" is no longer available.`
+          );
         }
       }
-      // console.log("Processed Cart Products:", CartProducts);
-      // console.log("Processed Gift Products:", GiftProducts);
 
       setCart(CartProducts);
       SetSelectedGift(GiftProducts);
     } catch (error) {
-      console.error("Error fetching products: ", error);
+      if (error.response && error.response.status === 400) {
+        console.log('No pending cart found for the user. 🤪🤪🤪🤪');
+      } else {
+        console.error('Error fetching cart data: ', error);
+        toast.error('An error occurred while fetching cart data.');
+      }
     } finally {
       setLoading(false);
     }
   };
+
   useEffect(() => {
-    console.log("Updated Cart State:", cart);
+    console.log('Updated Cart State:', cart);
   }, [cart]);
 
   useEffect(() => {
-    console.log("Updated Gift State:", SelectedGift);
+    console.log('Updated Gift State:', SelectedGift);
   }, [SelectedGift]);
 
   useEffect(() => {
     getProducts();
   }, []);
+
   useEffect(() => {
     if (products.length > 0 && gifts.length > 0) {
       getcartdata();
     }
   }, [products, gifts]);
 
-  const addToCart = (cracker) => {
-    const existingItem = cart.find((item) => item._id === cracker._id);
-    if (existingItem) {
-      setCart(
-        cart.map((item) =>
-          item._id === cracker._id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        )
-      );
-    } else {
-      setCart([...cart, { ...cracker, quantity: 1 }]);
+  const updateCart = (cracker, value) => {
+    const updatedCart = cart
+      .map((item) => {
+        if (item._id === cracker._id) {
+          return value > 0 ? { ...item, quantity: value } : null;
+        }
+        return item;
+      })
+      .filter((item) => item !== null);
+
+    if (value > 0 && !cart.find((item) => item._id === cracker._id)) {
+      updatedCart.push({ ...cracker, quantity: value });
+    }
+
+    setCart(updatedCart);
+  };
+
+  const incrementQuantity = (cracker) => {
+    const item = cart.find((item) => item._id === cracker._id);
+    const currentQuantity = item?.quantity || 0;
+
+    if (currentQuantity < cracker.stockavailable) {
+      updateCart(cracker, currentQuantity + 1);
     }
   };
 
-  const updateQuantity = (_id, delta) => {
-    setCart(
-      cart
-        .map((item) =>
-          item._id === _id
-            ? { ...item, quantity: Math.max(0, item.quantity + delta) }
-            : item
-        )
-        .filter((item) => item.quantity > 0)
-    );
+  const decrementQuantity = (cracker) => {
+    const item = cart.find((item) => item._id === cracker._id);
+    const currentQuantity = item?.quantity || 0;
+
+    if (currentQuantity > 0) {
+      updateCart(cracker, currentQuantity - 1);
+    }
   };
 
   const removeFromCart = (_id) => {
@@ -196,7 +284,7 @@ function App() {
         {showPopup && (
           <div
             className="fixed inset-0 bg-black bg-opacity-50 z-40"
-            style={{ marginLeft: "16.7%" }}
+            style={{ marginLeft: '16.7%' }}
             onClick={() => setShowPopup(false)}
           />
         )}
@@ -216,20 +304,18 @@ function App() {
             </div>
             <button className="bg-[#6be196] text-white px-4 py-2 rounded-lg hover:bg-[#4ADE80]">
               <GiftPopup
+                fetchGiftData={fetchGiftData}
                 SelectedGifts={SelectedGift}
                 setSelectedGifts={SetSelectedGift}
                 gifts={gifts}
-                // setGifts={setGifts}
                 showPopup={showPopup}
                 setShowPopup={setShowPopup}
-                // quantities={quantities}
-                // setQuantities={setQuantities}
               />
             </button>
           </div>
 
           <div className="bg-white rounded-lg shadow overflow-x-auto h-[75%] overflow-y-scroll custom-scrollbar">
-            <table className="w-full">
+            <table className="w-full ">
               <thead className="bg-gray-800 sticky top-0 z-10 text-white">
                 <tr>
                   <th className="p-4">Image</th>
@@ -254,26 +340,80 @@ function App() {
                       <td className="p-4 text-2xl">{cracker.image}</td>
                       <td className="p-4">{index + 1}</td>
                       <td className="p-4">{cracker.name}</td>
-                      <td className="p-4">{cracker.stockavailable}</td>
+                      <td className="p-4">
+                        {editProductId === cracker._id ? (
+                          <input
+                            type="number"
+                            value={updatedStock[cracker._id]}
+                            onChange={(e) =>
+                              setUpdatedStock({
+                                ...updatedStock,
+                                [cracker._id]: parseInt(e.target.value, 10) || 0
+                              })
+                            }
+                            className="w-20 border rounded text-center"
+                          />
+                        ) : (
+                          cracker.stockavailable
+                        )}
+                      </td>
                       <td className="p-4">Rs. {cracker.price}</td>
                       <td className="p-4">
                         <div className="flex items-center gap-2">
                           <button
-                            onClick={() => updateQuantity(cracker._id, -1)}
-                            className="bg-red-400 text-white px-2 rounded"
+                            onClick={() => decrementQuantity(cracker)}
+                            className={`${
+                              !cart.find((item) => item._id === cracker._id) ||
+                              cart.find((item) => item._id === cracker._id)
+                                ?.quantity === 0
+                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                : 'bg-red-400 text-white hover:bg-red-600'
+                            } px-2 rounded`}
+                            disabled={
+                              !cart.find((item) => item._id === cracker._id) ||
+                              cart.find((item) => item._id === cracker._id)
+                                ?.quantity === 0
+                            }
                           >
                             -
                           </button>
-                          <span>
-                            {cart.find((item) => item._id === cracker._id)
-                              ?.quantity || 0}
-                          </span>
+                          <input
+                            type="number"
+                            min="0"
+                            max={cracker.stockavailable}
+                            value={
+                              cart.find((item) => item._id === cracker._id)
+                                ?.quantity || 0
+                            }
+                            onChange={(e) => {
+                              const value = parseInt(e.target.value, 10) || 0;
+                              if (value > cracker.stockavailable) {
+                                toast.error(
+                                  `Quantity exceeds the available stock of ${cracker.stockavailable}`
+                                );
+                              }
+
+                              if (
+                                value >= 0 &&
+                                value <= cracker.stockavailable
+                              ) {
+                                updateCart(cracker, value);
+                              }
+                            }}
+                            className={`w-16 border rounded text-center ${
+                              cracker.stockavailable === 0
+                                ? 'bg-gray-200 text-gray-500 cursor-not-allowed '
+                                : ''
+                            }`}
+                            disabled={cracker.stockavailable === 0}
+                          />
+
                           <button
-                            onClick={() => addToCart(cracker)}
+                            onClick={() => incrementQuantity(cracker)}
                             className={`${
                               cracker.stockavailable === 0
-                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                : "bg-[#4ADE80] text-white"
+                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                : 'bg-[#4ADE80] text-white hover:bg-green-600'
                             } px-2 rounded`}
                             disabled={cracker.stockavailable === 0}
                           >
@@ -286,10 +426,24 @@ function App() {
                         {(cart.find((item) => item._id === cracker._id)
                           ?.quantity || 0) * cracker.price}
                       </td>
-                      <td>
-                        <button className="bg-[#6be196] text-black px-4 py-2 rounded-lg hover:bg-[#4ADE80]">
-                          Edit
-                        </button>
+                      <td className="p-4">
+                        {editProductId === cracker._id ? (
+                          <button
+                            onClick={() => handleSave(cracker)}
+                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                          >
+                            Save
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() =>
+                              handleEdit(cracker._id, cracker.stockavailable)
+                            }
+                            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                          >
+                            Edit
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -301,7 +455,6 @@ function App() {
           SetSelectedGift={SetSelectedGift}
           SelectedGift={SelectedGift}
           showPopup={showPopup}
-          // quantities={quantities}
           id={id}
           setPdfUrl={setPdfUrl}
           cart={cart}
@@ -341,6 +494,7 @@ function App() {
           ></iframe>
         </div>
       )}
+      <ToastContainer />
     </div>
   );
 }

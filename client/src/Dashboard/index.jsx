@@ -1,39 +1,39 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   Menu,
   FileText,
   Package,
   Users,
   Star,
-  LayoutDashboard,
-} from "lucide-react";
-import Sidebar from "../components/Sidebar";
-import { createSidebar } from "./SalesOverview";
-import StatCard from "./StatCard";
-import RevenueChart from "./RevenueChart";
-import SalesOverview from "./SalesOverview";
-import RecentInvoices from "./RecentInvoices";
-import axios from "axios";
+  LayoutDashboard
+} from 'lucide-react';
+import Sidebar from '../components/Sidebar';
+import { createSidebar } from './SalesOverview';
+import StatCard from './StatCard';
+import RevenueChart from './RevenueChart';
+import SalesOverview from './SalesOverview';
+import RecentInvoices from './RecentInvoices';
+import axios from 'axios';
 function App({ userName }) {
   const [loading, setLoading] = useState(true);
   const [Dashboard, setDashboard] = useState([]);
   const fetchDashboard = async () => {
-    const token = localStorage.getItem("cracker_token");
+    const token = localStorage.getItem('cracker_token');
     try {
       const response = await axios.get(
         `${process.env.REACT_APP_BASEURL}/order/stats`,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
-          },
+            Authorization: `Bearer ${token}`
+          }
         }
       );
-      console.log("DashBoard Data : ", response.data);
+      console.log('DashBoard Data : ', response.data);
       if (response.status === 200) {
         setDashboard(response.data);
       }
     } catch (error) {
-      console.error("Error fetching customers:", error);
+      console.error('Error fetching customers:', error);
     } finally {
       setLoading(false);
     }
@@ -42,18 +42,19 @@ function App({ userName }) {
   useEffect(() => {
     fetchDashboard();
   }, []);
+
   return (
     <div className="min-h-screen bg-gray-100">
       <div
         className={`fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden ${
-          sidebarOpen ? "block" : "hidden"
+          sidebarOpen ? 'block' : 'hidden'
         }`}
         onClick={() => setSidebarOpen(false)}
       />
 
       <div
         className={`fixed inset-y-0 left-0 w-64 bg-[#4A2A80] text-white p-4 transform transition-transform duration-200 ease-in-out z-50 md:hidden ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <Sidebar />
@@ -103,7 +104,6 @@ function App({ userName }) {
           />
         </div>
 
-        {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           <div className="lg:col-span-2">
             <RevenueChart
@@ -116,7 +116,6 @@ function App({ userName }) {
           </div>
         </div>
 
-        {/* Recent Invoices */}
         <div className="grid grid-cols-1 gap-6">
           <RecentInvoices invoices={Dashboard.topOrders} />
         </div>

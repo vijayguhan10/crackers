@@ -9,10 +9,6 @@ const companySchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  salesperson: {
-    type: String,
-    required: true
-  },
   personcontact: {
     type: String,
     required: true
@@ -29,11 +25,6 @@ const companySchema = new mongoose.Schema({
   jobdescription: {
     type: String,
     required: true
-  },
-  email: {
-    type: String,
-    required: true,
-    match: [/.+\@.+\..+/, 'Please enter a valid email address']
   },
   bankdetails: {
     accountname: {
@@ -60,6 +51,15 @@ const companySchema = new mongoose.Schema({
       type: String,
       required: true
     }
+  },
+  createdat: {
+    type: Date,
+    default: Date.now
+  },
+  admin: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    require: true
   }
 });
 

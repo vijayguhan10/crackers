@@ -190,3 +190,58 @@ exports.getAllAdmins = async (req, res) => {
       .json({ message: 'Server error.', error: error.message });
   }
 };
+
+exports.updateSubAdmin = async (req, res) => {
+  try {
+    const { updateData } = req.body;
+    if (req.user.role !== 'subadmin') {
+      return res
+        .status(403)
+        .json({ message: 'Unauthorized to update details.' });
+    }
+    if (updateData.password) {
+      updateData.password = await bcrypt.hash(updateData.password, 10);
+    }
+    const updatedSubAdmin = await req.db
+      .model('User', userSchema)
+      .findByIdAndUpdate(req.user.id, { $set: updateData }, { new: true });
+
+    if (!updatedSubAdmin) {
+      return res.status(404).json({ message: 'Sub-admin not found.' });
+    }
+    const superAdmin = await mongoose.model('User', userSchema).findOne({
+      'subadmindetails.id': req.user.id
+    });
+    if (superAdmin) {
+      const subAdminIndex = superAdmin.subadmindetails.findIndex(
+        (subAdmin) => subAdmin.id.toString() === req.user.id
+      );
+      Object.keys(updateData).forEach((key) => {
+        if (key !== 'password') {
+          superAdmin.subadmindetails[subAdminIndex][key] = updateData[key];
+        } else {
+          superAdmin.subadmindetails[subAdminIndex].password =
+            updateData.password;
+        }
+      });
+      await superAdmin.save();
+    }
+    const user = {
+      id: updatedSubAdmin._id,
+      name: updatedSubAdmin.name,
+      email: updatedSubAdmin.email,
+      role: updatedSubAdmin.role
+    };
+
+    const token = generateToken(user, req.user.databaseName);
+    return res.status(200).json({
+      message: 'Details updated successfully.',
+      token,
+      updatedSubAdmin
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: 'Server error.', error: error.message });
+  }
+};

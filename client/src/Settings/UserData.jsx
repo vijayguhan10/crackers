@@ -13,10 +13,10 @@ import Header from '../components/Header';
 import CompanyEditPopup from './CompanyEditPopup';
 
 const UserData = () => {
-  const [companyData, setCompanyData] = useState(null); // Initialize as null
+  const [companyData, setCompanyData] = useState(null);
   const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true); // Add loading state
-  const [error, setError] = useState(null); // Add error state
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showEditUserPopup, setShowEditUserPopup] = useState(false);
   const [showEditCompanyPopup, setShowEditCompanyPopup] = useState(false);
   const [editUserData, setEditUserData] = useState({});

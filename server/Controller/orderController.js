@@ -246,3 +246,83 @@ exports.getDashboardStats = async (req, res) => {
       .json({ error: 'Internal server error', details: err.message });
   }
 };
+
+exports.getOrdersByMonth = async (req, res) => {
+  try {
+    if (req.user.role !== 'subadmin') {
+      return res.status(401).json({
+        error: 'Unauthorized',
+        details: 'Only subadmin can access this route'
+      });
+    }
+
+    const db = req.db;
+    const Order = getOrderModel(db); // Order model
+    const { year } = req.body;
+    console.log();
+    if (!year) {
+      return res.status(400).json({ error: 'Year is required' });
+    }
+
+    const ordersByMonth = await Order.aggregate([
+      {
+        $match: {
+          createdat: {
+            $gte: new Date(`${parseInt(year)}-01-01`),
+            $lt: new Date(`${parseInt(year) + 1}-01-01`)
+          }
+        }
+      },
+      {
+        $lookup: {
+          from: 'customers', // Name of the Customer collection
+          localField: 'customer', // Field in Order collection
+          foreignField: '_id', // Field in Customer collection
+          as: 'customerDetails' // Field to store customer details
+        }
+      },
+      {
+        $unwind: '$customerDetails' // Flatten customerDetails array
+      },
+      {
+        $project: {
+          _id: 1,
+          createdat: 1,
+          grandtotal: 1, // Assuming there's a grand total field in the order
+          'customerDetails.name': 1, // Include customer name
+          invoicepdf: 1, // Invoice link
+          month: { $month: '$createdat' } // Extract month from createdat
+        }
+      },
+      {
+        $group: {
+          _id: '$month', // Group by month
+          orders: {
+            $push: {
+              id: '$_id',
+              name: '$customerDetails.name',
+              grandTotal: '$grandtotal',
+              purchaseDate: '$createdat',
+              invoiceLink: '$invoicepdf'
+            }
+          }
+        }
+      },
+      {
+        $sort: { _id: 1 } // Sort by month (ascending)
+      }
+    ]);
+
+    const formattedResult = Array.from({ length: 12 }, (_, i) => {
+      const monthData = ordersByMonth.find((m) => m._id === i + 1);
+      return monthData ? monthData.orders : []; // Return empty array if no orders for the month
+    });
+
+    res.status(200).json(formattedResult);
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ error: 'Internal server error', details: err.message });
+  }
+};

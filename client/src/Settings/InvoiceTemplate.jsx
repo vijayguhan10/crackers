@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 const InvoiceTemplate = () => {
   return (
@@ -35,23 +35,6 @@ const InvoiceTemplate = () => {
             </td>
             <td className="font-bold">PHONE</td>
             <td>640-555-0146</td>
-          </tr>
-        </table>
-      </div>
-
-      <div className="mt-5 border-b-2 pb-2">
-        <table className="w-full border-collapse">
-          <tr>
-            <td className="w-1/5 font-bold">SALESPERSON</td>
-            <td className="w-2/5">Jane</td>
-            <td className="w-1/5 font-bold">JOB</td>
-            <td className="w-2/5">Dental Instrument Resupply</td>
-          </tr>
-          <tr>
-            <td className="font-bold">PAYMENT TERMS</td>
-            <td>Due upon receipt</td>
-            <td className="font-bold">DUE DATE</td>
-            <td>8/8/2023</td>
           </tr>
         </table>
       </div>

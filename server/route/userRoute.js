@@ -11,7 +11,5 @@ router
   .post(authMiddleware, userController.createSubAdmin);
 
 router.route('/admins').get(authMiddleware, userController.getAllAdmins);
-
+router.route('/').put(authMiddleware, userController.updateSubAdmin);
 module.exports = router;
-
-

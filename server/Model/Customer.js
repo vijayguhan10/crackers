@@ -5,8 +5,7 @@ const customerSchema = new mongoose.Schema({
   address: { type: String, required: true },
   phone: {
     type: String,
-    required: true,
-    match: [/^\d{10}$/, 'Invalid phone number']
+    required: true
   },
   orders: [
     {

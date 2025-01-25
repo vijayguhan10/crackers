@@ -195,7 +195,12 @@ function StockTable() {
                   </tr>
                 </thead>
                 <tbody>
-                  {Products.map((cracker, index) => (
+                  {Products
+                  .filter((cracker) =>
+                    cracker.name
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase())
+                  ).map((cracker, index) => (
                     <tr key={cracker._id} className="border border-gray-800">
                       <td className="p-4 text-center border border-gray-800">
                         <h1 className="text-2xl">{cracker.image}</h1>

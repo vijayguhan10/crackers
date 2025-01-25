@@ -1,4 +1,4 @@
-const { getCompanyModel } = require('../utils/dbUtil');
+const { getCompanyModel, getUserModel } = require('../utils/dbUtil');
 
 exports.createCompany = async (req, res) => {
   try {
@@ -14,12 +14,10 @@ exports.createCompany = async (req, res) => {
     const {
       companyname,
       companytagline,
-      salesperson,
       personcontact,
       shopaddress,
       paymentterms,
       jobdescription,
-      email,
       accountname,
       accountno,
       accounttype,
@@ -31,12 +29,10 @@ exports.createCompany = async (req, res) => {
     const company = new Company({
       companyname,
       companytagline,
-      salesperson,
       personcontact,
       shopaddress,
       paymentterms,
       jobdescription,
-      email,
       bankdetails: {
         accountname,
         accountno,
@@ -44,7 +40,8 @@ exports.createCompany = async (req, res) => {
         bankname,
         branch,
         ifsc
-      }
+      },
+      admin: req.user.id
     });
 
     await company.save();
@@ -136,6 +133,36 @@ exports.deleteCompany = async (req, res) => {
     }
 
     return res.status(200).json({ message: 'Company deleted successfully.' });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: 'Server error.', error: error.message });
+  }
+};
+
+exports.getCompanyWithUser = async (req, res) => {
+  try {
+    if (req.user.role !== 'subadmin') {
+      return res
+        .status(401)
+        .json({ message: 'Unauthorized to perform this action.' });
+    }
+
+    const db = req.db;
+    const Company = getCompanyModel(db);
+    getUserModel(db);
+    const company = await Company.findOne().populate({
+      path: 'admin',
+      select: 'name email'
+    });
+
+    db.close();
+
+    if (!company) {
+      return res.status(404).json({ message: 'Company not found.' });
+    }
+
+    return res.status(200).json(company);
   } catch (error) {
     return res
       .status(500)

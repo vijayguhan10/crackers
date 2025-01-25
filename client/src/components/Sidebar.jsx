@@ -9,7 +9,7 @@ import {
   GiftIcon
 } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-
+console.log("ddd");
 const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();

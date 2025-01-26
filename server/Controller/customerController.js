@@ -1,11 +1,11 @@
-const { getCompanyModel, getCustomerModel } = require('../utils/dbUtil');
+const { getCompanyModel, getCustomerModel } = require("../utils/dbUtil");
 
 exports.createCustomer = async (req, res) => {
   try {
-    if (req.user.role !== 'subadmin') {
+    if (req.user.role !== "subadmin") {
       return res
         .status(401)
-        .json({ message: 'Unauthorized to create a customer.' });
+        .json({ message: "Unauthorized to create a customer." });
     }
 
     const db = req.db;
@@ -14,18 +14,18 @@ exports.createCustomer = async (req, res) => {
 
     const company = await Company.findOne();
     if (!company) {
-      return res.status(404).json({ message: 'Company details not found' });
+      return res.status(404).json({ message: "Company details not found" });
     }
 
     const { name, address, phone } = req.body;
     console.log(name, address, phone);
     if (!name || !phone) {
-      return res.status(400).json({ message: 'Name and phone are required.' });
+      return res.status(400).json({ message: "Name and phone are required." });
     }
 
     let customer = await Customer.findOne({ phone });
     if (customer) {
-      return res.status(400).json({ message: 'Customer already exists.' });
+      return res.status(400).json({ message: "Customer already exists." });
     }
 
     customer = new Customer({ name, address, phone });
@@ -34,24 +34,24 @@ exports.createCustomer = async (req, res) => {
     company.totalcustomers += 1;
     await company.save();
 
-    console.log('saving the customer data : ', customer);
+    console.log("saving the customer data : ", customer);
     res
       .status(200)
-      .json({ message: 'Customer created successfully.', customer });
+      .json({ message: "Customer created successfully.", customer });
   } catch (error) {
-    console.error('Error creating customer:', error);
+    console.error("Error creating customer:", error);
     res
       .status(500)
-      .json({ message: 'Error creating customer', error: error.message });
+      .json({ message: "Error creating customer", error: error.message });
   }
 };
 
 exports.getAllCustomers = async (req, res) => {
   try {
-    if (req.user.role !== 'subadmin') {
+    if (req.user.role !== "subadmin") {
       return res
         .status(401)
-        .json({ message: 'Unauthorized to view customer details.' });
+        .json({ message: "Unauthorized to view customer details." });
     }
 
     const db = req.db;
@@ -62,45 +62,45 @@ exports.getAllCustomers = async (req, res) => {
   } catch (error) {
     res
       .status(500)
-      .json({ message: 'Error fetching customers', error: error.message });
+      .json({ message: "Error fetching customers", error: error.message });
   }
 };
 
 exports.getCustomer = async (req, res) => {
   try {
-    if (req.user.role !== 'subadmin') {
+    if (req.user.role !== "subadmin") {
       return res
         .status(401)
-        .json({ message: 'Unauthorized to get customer details.' });
+        .json({ message: "Unauthorized to get customer details." });
     }
 
     const db = req.db;
     const Customer = getCustomerModel(db);
     const { id } = req.body;
     if (!id) {
-      return res.status(400).json({ message: 'Customer ID is required.' });
+      return res.status(400).json({ message: "Customer ID is required." });
     }
 
     const customer = await Customer.findById(id);
     if (!customer) {
-      return res.status(400).json({ message: 'Customer not found.' });
+      return res.status(400).json({ message: "Customer not found." });
     }
 
     res.status(200).json(customer);
   } catch (error) {
     res.status(500).json({
-      message: 'Error getting customer details',
-      error: error.message
+      message: "Error getting customer details",
+      error: error.message,
     });
   }
 };
 
 exports.updateCustomer = async (req, res) => {
   try {
-    if (req.user.role !== 'subadmin') {
+    if (req.user.role !== "subadmin") {
       return res
         .status(401)
-        .json({ message: 'Unauthorized to update customer details.' });
+        .json({ message: "Unauthorized to update customer details." });
     }
 
     const db = req.db;
@@ -108,7 +108,7 @@ exports.updateCustomer = async (req, res) => {
     const { id } = req.body;
 
     if (!id) {
-      return res.status(400).json({ message: 'Customer ID is required.' });
+      return res.status(400).json({ message: "Customer ID is required." });
     }
 
     const updateData = req.body;
@@ -117,21 +117,21 @@ exports.updateCustomer = async (req, res) => {
 
     const updatedCustomer = await Customer.findByIdAndUpdate(id, updateData, {
       new: true,
-      runValidators: true
+      runValidators: true,
     });
 
     if (!updatedCustomer) {
-      return res.status(404).json({ message: 'Customer not found.' });
+      return res.status(404).json({ message: "Customer not found." });
     }
 
     res.status(200).json({
-      message: 'Customer updated successfully.',
-      customer: updatedCustomer
+      message: "Customer updated successfully.",
+      customer: updatedCustomer,
     });
   } catch (error) {
     res.status(500).json({
-      message: 'Error updating customer details',
-      error: error.message
+      message: "Error updating customer details",
+      error: error.message,
     });
   }
 };
@@ -174,10 +174,10 @@ exports.updateCustomer = async (req, res) => {
 
 exports.getCustomersWithOrderDetails = async (req, res) => {
   try {
-    if (req.user.role !== 'subadmin') {
+    if (req.user.role !== "subadmin") {
       return res
         .status(401)
-        .json({ message: 'Unauthorized to view customer details.' });
+        .json({ message: "Unauthorized to view customer details." });
     }
 
     const db = req.db;
@@ -185,21 +185,21 @@ exports.getCustomersWithOrderDetails = async (req, res) => {
 
     const customers = await Customer.aggregate([
       {
-        $match: { orders: { $exists: true, $ne: [] } }
+        $match: { orders: { $exists: true, $ne: [] } },
       },
       {
         $lookup: {
-          from: 'orders',
-          localField: 'orders.id',
-          foreignField: '_id',
-          as: 'orderDetails'
-        }
+          from: "orders",
+          localField: "orders.id",
+          foreignField: "_id",
+          as: "orderDetails",
+        },
       },
       {
         $unwind: {
-          path: '$orderDetails',
-          preserveNullAndEmptyArrays: true
-        }
+          path: "$orderDetails",
+          preserveNullAndEmptyArrays: true,
+        },
       },
       {
         $project: {
@@ -209,26 +209,26 @@ exports.getCustomersWithOrderDetails = async (req, res) => {
           phone: 1,
           status: 1,
           createdAt: 1,
-          'orderDetails.id': 1,
-          'orderDetails.createdat': 1,
-          'orderDetails.grandtotal': 1,
-          'orderDetails.invoicepdf': 1
-        }
+          "orderDetails.id": 1,
+          "orderDetails.createdat": 1,
+          "orderDetails.grandtotal": 1,
+          "orderDetails.invoicepdf": 1,
+        },
       },
       {
-        $sort: { 'orderDetails.createdat': -1 }
+        $sort: { "orderDetails.createdat": -1 },
       },
       {
         $group: {
-          _id: '$_id',
-          name: { $first: '$name' },
-          address: { $first: '$address' },
-          phone: { $first: '$phone' },
-          status: { $first: '$status' },
-          createdAt: { $first: '$createdAt' },
-          orders: { $push: '$orderDetails' }
-        }
-      }
+          _id: "$_id",
+          name: { $first: "$name" },
+          address: { $first: "$address" },
+          phone: { $first: "$phone" },
+          status: { $first: "$status" },
+          createdAt: { $first: "$createdAt" },
+          orders: { $push: "$orderDetails" },
+        },
+      },
     ]);
 
     const formattedCustomers = customers.map((customer) => {
@@ -248,8 +248,8 @@ exports.getCustomersWithOrderDetails = async (req, res) => {
           id: order.id,
           createdat: order.createdat,
           grandtotal: order.grandtotal,
-          invoicepdf: order.invoicepdf
-        }))
+          invoicepdf: order.invoicepdf,
+        })),
       };
     });
 
@@ -262,8 +262,8 @@ exports.getCustomersWithOrderDetails = async (req, res) => {
     res.status(200).json(sortedCustomers);
   } catch (error) {
     res.status(500).json({
-      message: 'Error fetching customers with order details',
-      error: error.message
+      message: "Error fetching customers with order details",
+      error: error.message,
     });
   }
 };

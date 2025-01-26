@@ -5,12 +5,13 @@ import { useParams } from "react-router-dom";
 import { Loader } from "lucide-react";
 import FinalGift from "./FinalGift";
 
-function App() {
+function App({ giftData }) {
+  console.log("passed the data from the Editpopup to Products  : ", giftData);
   const { id } = useParams();
   console.log("consoling the useparams id : ", id);
   const [cart, setCart] = useState([]);
+  const [FilteredProducts, SetfilteredProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [discount, setDiscount] = useState(50);
   const [products, SetProducts] = useState([]);
   const [Loading, setLoading] = useState(false);
 
@@ -41,24 +42,65 @@ function App() {
     getProducts();
   }, []);
 
+  useEffect(() => {
+    if (products.length > 0 && giftData?.products) {
+      const filteredProducts = products
+        .filter((product) =>
+          giftData.products.some(
+            (giftProduct) => giftProduct.productId === product._id
+          )
+        )
+        .map((product) => {
+          const giftProduct = giftData.products.find(
+            (gift) => gift.productId === product._id
+          );
+          return {
+            ...product,
+            quantity: giftProduct?.quantity || 0,
+          };
+        });
+      console.log(
+        "Filtered products inside gift box:😊😊😊 ",
+        filteredProducts
+      );
+      SetfilteredProducts(filteredProducts);
+    }
+  }, [products, giftData]);
+
   const addToCart = (cracker) => {
-    const existingItem = cart.find((item) => item._id === cracker._id);
+    let currentData = cart;
+    let setCurrentData = setCart;
+
+    if (giftData) {
+      currentData = FilteredProducts;
+      setCurrentData = SetfilteredProducts;
+    }
+
+    const existingItem = currentData.find((item) => item._id === cracker._id);
     if (existingItem) {
-      setCart(
-        cart.map((item) =>
+      setCurrentData(
+        currentData.map((item) =>
           item._id === cracker._id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         )
       );
     } else {
-      setCart([...cart, { ...cracker, quantity: 1 }]);
+      setCurrentData([...currentData, { ...cracker, quantity: 1 }]);
     }
   };
 
   const updateQuantity = (_id, delta) => {
-    setCart(
-      cart
+    let currentData = cart;
+    let setCurrentData = setCart;
+
+    if (giftData) {
+      currentData = FilteredProducts;
+      setCurrentData = SetfilteredProducts;
+    }
+
+    setCurrentData(
+      currentData
         .map((item) =>
           item._id === _id
             ? { ...item, quantity: Math.max(0, item.quantity + delta) }
@@ -68,18 +110,45 @@ function App() {
     );
   };
 
-  // Remove item from the cart
   const removeFromCart = (_id) => {
-    setCart(cart.filter((item) => item._id !== _id));
+    let currentData = cart;
+    let setCurrentData = setCart;
+
+    if (giftData) {
+      currentData = FilteredProducts;
+      setCurrentData = SetfilteredProducts;
+    }
+
+    setCurrentData(currentData.filter((item) => item._id !== _id));
   };
 
   // Calculate total and grand total
-  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const grandTotal = total * (1 - discount / 100);
+  const total = (giftData ? FilteredProducts : cart).reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
+  const grandTotal = total;
+
+  // Merge products with cart/FilteredProducts to get quantities
+  const mergedProducts = products.map((product) => {
+    const cartItem = cart.find((item) => item._id === product._id);
+    const filteredItem = FilteredProducts.find((item) => item._id === product._id);
+
+    // Use quantity from cart or FilteredProducts (based on giftData)
+    const quantity = giftData
+      ? filteredItem?.quantity || 0
+      : cartItem?.quantity || 0;
+
+    return {
+      ...product,
+      quantity,
+      total: product.price * quantity,
+    };
+  });
 
   return (
     <div className="min-h-screen bg-gray-50 overflow-hidden">
-    
       <div className="container mx-auto p-4 flex flex-col lg:flex-row gap-6">
         <div className="lg:w-full lg:h-[1000px]">
           <div className="flex items-center gap-4 mb-6">
@@ -95,7 +164,6 @@ function App() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-          
           </div>
 
           <div className="bg-white rounded-lg shadow overflow-x-auto h-[75%] overflow-y-scroll custom-scrollbar">
@@ -112,7 +180,7 @@ function App() {
                 </tr>
               </thead>
               <tbody className="text-center items-center">
-                {products
+                {mergedProducts
                   .filter((cracker) =>
                     cracker.name
                       .toLowerCase()
@@ -133,10 +201,7 @@ function App() {
                           >
                             -
                           </button>
-                          <span>
-                            {cart.find((item) => item._id === cracker._id)
-                              ?.quantity || 0}
-                          </span>
+                          <span>{cracker.quantity}</span>
                           <button
                             onClick={() => addToCart(cracker)}
                             className="bg-[#4ADE80] text-white px-2 rounded"
@@ -145,11 +210,7 @@ function App() {
                           </button>
                         </div>
                       </td>
-                      <td className="p-4">
-                        Rs.
-                        {(cart.find((item) => item._id === cracker._id)
-                          ?.quantity || 0) * cracker.price}
-                      </td>
+                      <td className="p-4">Rs. {cracker.total}</td>
                     </tr>
                   ))}
               </tbody>
@@ -157,12 +218,12 @@ function App() {
           </div>
         </div>
         <FinalGift
+          giftData={giftData}
+          filteredProducts={FilteredProducts}
           cart={cart}
           total={total}
           grandTotal={grandTotal}
           removeFromCart={removeFromCart}
-          discount={discount}
-          setDiscount={setDiscount}
           setCart={setCart}
         />
       </div>
@@ -181,8 +242,6 @@ function App() {
           background-color: #2d3748;
         }
       `}</style>
-
-      
     </div>
   );
 }

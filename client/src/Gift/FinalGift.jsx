@@ -1,26 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { jwtDecode } from "jwt-decode";
 import { Wallet } from "lucide-react";
+
 const FinalGift = ({
-  selectedGift,
+  giftData,
   cart,
   total,
-  grandTotal,
   removeFromCart,
-  discount,
-  setDiscount,
   setCart,
+  filteredProducts,
 }) => {
-  const calculatedGrandTotal = grandTotal;
+  console.log("filtereddata data in the FinalGift : ", filteredProducts);
+  console.log("GiftData data in the FinalGift : 💕💕 ", giftData);
+
+  const [inputGrandTotal, setInputGrandTotal] = useState(0);
+  const [isTotalEmpty, setIsTotalEmpty] = useState(false);
+  const [isNameEmpty, setIsNameEmpty] = useState(false);
+  const [isCountEmpty, setIsCountEmpty] = useState(false);
   const [giftBoxName, setGiftBoxName] = useState("");
   const [GiftBoxCount, setGiftBoxCount] = useState("");
 
+  useEffect(() => {
+    if (giftData) {
+      setGiftBoxName(giftData.name || "");
+      setGiftBoxCount(giftData.stockavailable || 0);
+      setInputGrandTotal(giftData.grandtotal || 0);
+    }
+  }, [filteredProducts, cart, giftData]);
+
   const handleCheckout = async () => {
-    if (cart.length === 0) {
-      toast.error("Cart is empty! Add items to proceed.");
+    if (!filteredProducts.length && !cart.length) {
+      toast.error("No products selected!");
       return;
     }
 
@@ -34,42 +46,59 @@ const FinalGift = ({
       return;
     }
 
+    const grandTotalValue = Number(inputGrandTotal);
+    console.log("👌👌11 : ", grandTotalValue);
+    if (isNaN(grandTotalValue) || grandTotalValue <= 0) {
+      toast.error("Please enter a valid grand total.");
+      return;
+    }
+
     const requestData = {
       name: giftBoxName,
-      products: cart.map((item) => ({
-        productId: item._id,
-        quantity: item.quantity,
-      })),
-      discount,
+      products: (filteredProducts.length ? filteredProducts : cart).map(
+        (product) => ({
+          productId: product._id,
+          quantity: product?.quantity || 0,
+        })
+      ),
       total,
-      grandtotal: calculatedGrandTotal.toFixed(2),
+      grandtotal: grandTotalValue,
       stockavailable: Number(GiftBoxCount),
     };
 
+    if (giftData) {
+      requestData._id = giftData._id; // Include the ID for updating
+    }
+
+    console.log("request data :🤣🤣 ", requestData);
     const token = localStorage.getItem("cracker_token");
-    const decoded = jwtDecode(token);
 
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_BASEURL}/giftbox`,
-        requestData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const endpoint = `${process.env.REACT_APP_BASEURL}/giftbox`;
+      if (giftData) {
+        requestData._id = giftData._id;
+      }
+      const method = giftData ? "put" : "post";
+
+      const response = await axios[method](endpoint, requestData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (response.status === 200 || response.status === 201) {
-        toast.success("Gift box created successfully!");
+        window.location.reload();
+        toast.success(
+          `Gift box ${giftData ? "updated" : "created"} successfully!`
+        );
         setCart([]);
         setGiftBoxName("");
+        setInputGrandTotal(0);
         setGiftBoxCount("");
-        setDiscount(0);
       }
     } catch (error) {
-      console.error("Error creating gift box:", error);
-      toast.error("Failed to create gift box. Please try again.");
+      console.error("Error creating/updating gift box:", error);
+      toast.error("Failed to create/update gift box. Please try again.");
     }
   };
 
@@ -93,26 +122,31 @@ const FinalGift = ({
                   </tr>
                 </thead>
                 <tbody>
-                  {cart.map((item, index) => (
-                    <tr key={item._id} className="border-b text-nowrap">
-                      <td className="p-2">{index + 1}</td>
-                      <td className="p-2">{item.name}</td>
-                      <td className="p-8">{item.quantity}</td>
-                      <td className="p-4">Rs. {item.price * item.quantity}</td>
-                      <td className="p-2">
-                        <button
-                          onClick={() => removeFromCart(item._id)}
-                          className="bg-gray-200 p-1 rounded"
-                        >
-                          🗑️
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {(filteredProducts?.length ? filteredProducts : cart).map(
+                    (product, index) => (
+                      <tr key={product._id} className="border-b text-nowrap">
+                        <td className="p-2">{index + 1}</td>
+                        <td className="p-2">{product.name}</td>
+                        <td className="p-8">{product?.quantity || 0}</td>
+                        <td className="p-4 text-black">
+                          Rs.{" "}
+                          {Number(product?.price || 0) *
+                            Number(product?.quantity || 0)}
+                        </td>
+                        <td className="p-2">
+                          <button
+                            onClick={() => removeFromCart(product._id)}
+                            className="bg-gray-200 p-1 rounded"
+                          >
+                            🗑️
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  )}
                 </tbody>
               </table>
             </div>
-
             <div className="border-t pt-4">
               <div className="mb-4">
                 <label htmlFor="giftBoxName" className="block font-bold mb-2">
@@ -121,48 +155,71 @@ const FinalGift = ({
                 <input
                   id="giftBoxName"
                   type="text"
-                  value={giftBoxName}
-                  onChange={(e) => setGiftBoxName(e.target.value)}
+                  value={isNameEmpty ? "" : giftBoxName || giftData?.name}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setGiftBoxName(value);
+                    setIsNameEmpty(value === "");
+                  }}
                   placeholder="Gift Box Name"
                   className="w-full p-2 border rounded"
                 />
               </div>
+
               <div className="mb-4">
-                <label htmlFor="giftBoxName" className="block font-bold mb-2">
-                  Enter the Availability of the GiftBox
+                <label htmlFor="GiftBoxCount" className="block font-bold mb-2">
+                  Enter the Stocks of the GiftBox
                 </label>
                 <input
                   id="GiftBoxCount"
                   type="number"
                   min={0}
-                  value={GiftBoxCount}
-                  onChange={(e) => setGiftBoxCount(e.target.value)}
-                  placeholder="Gift Box Name"
+                  value={
+                    isCountEmpty
+                      ? ""
+                      : GiftBoxCount || giftData?.stockavailable || 0
+                  }
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setGiftBoxCount(value);
+                    setIsCountEmpty(value === "");
+                  }}
+                  placeholder="Enter the Gift box Stocks"
                   className="w-full p-2 border rounded"
                 />
               </div>
-              <div className="flex items-center gap-2 mb-4">
-                <span className="text-xl">💫</span>
-                <span className="font-bold">DISCOUNT</span>
-                <input
-                  type="number"
-                  value={discount}
-                  onChange={(e) => setDiscount(Number(e.target.value))}
-                  className="w-20 p-1 border rounded text-right"
-                />
-                <span>%</span>
-              </div>
 
-              <div className="flex justify-between mb-2">
-                <span>TOTAL:</span>
-                <span>Rs. {total}</span>
-              </div>
+              <div className="flex justify-between items-center xl:w-full">
+                <div className="flex items-center w-1/2">
+                  <span className="text-gray-700 font-medium">TOTAL:</span>
+                  <span className="text-gray-900 font-medium pl-4">
+                    Rs. {total}
+                  </span>
+                </div>
 
-              <div className="flex justify-between font-bold">
-                <span>GRAND TOTAL:</span>
-                <span>Rs. {calculatedGrandTotal.toFixed(2)}</span>
+                <div className="flex justify items-center">
+                  <span className="text-gray-800 font-bold text-sm text-nowrap">
+                    GRAND TOTAL:
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <input
+                      id="inputGrandTotal"
+                      type="number"
+                      value={
+                        isTotalEmpty
+                          ? ""
+                          : inputGrandTotal || giftData?.grandtotal || 0
+                      }
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setInputGrandTotal(value);
+                        setIsTotalEmpty(value === "");
+                      }}
+                      className="w-24 p-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
               </div>
-
               <div className="flex gap-4 mt-6">
                 <button
                   onClick={() => setCart([])}
@@ -174,27 +231,13 @@ const FinalGift = ({
                   onClick={handleCheckout}
                   className="flex-1 bg-gray-800 text-white py-2 rounded-lg hover:bg-gray-700"
                 >
-                  Create gift box
+                  {giftData ? `Save Gift Box` : "Create Gift Box"}
                 </button>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <style jsx>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 12px;
-          background-color: #f4f4f4;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background-color: #4a5568;
-          border-radius: 10px;
-          border: 3px solid #f4f4f4;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background-color: #2d3748;
-        }
-      `}</style>
       <ToastContainer />
     </div>
   );

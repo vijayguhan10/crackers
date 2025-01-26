@@ -8,10 +8,13 @@ import {
   Trash,
 } from "lucide-react";
 import axios from "axios";
+import EditPopup from "./EditPopup";
 
 const PurchaseData = () => {
+  const [isEdit, setIsEdit] = useState(false); 
   const [Loading, setLoading] = useState(false);
-  const [GiftBox, SetGiftBox] = useState([]);
+  const [GiftBox, setGiftBox] = useState([]);
+  const [selectedGift, setSelectedGift] = useState(null); 
 
   const getAllGiftBoxes = async () => {
     const token = localStorage.getItem("cracker_token");
@@ -26,7 +29,7 @@ const PurchaseData = () => {
           },
         }
       );
-      SetGiftBox(response.data);
+      setGiftBox(response.data);
       console.log("fetched gift data : ", response.data);
     } catch (error) {
       console.error("Error fetching products: ", error);
@@ -41,7 +44,7 @@ const PurchaseData = () => {
 
   const handleDelete = async (id, status) => {
     const data = {
-      id: id,
+      _id: id,
       status: !status,
     };
     console.log("status : ", status);
@@ -71,7 +74,7 @@ const PurchaseData = () => {
         {GiftBox.map((gift) => (
           <div
             key={gift._id}
-            className={`flex flex-col  rounded-lg border-black border p-6 overflow-hidden ${
+            className={`flex flex-col rounded-lg border-black border p-6 overflow-hidden ${
               gift.status ? "bg-green-100" : "bg-red-100"
             }`}
           >
@@ -87,22 +90,28 @@ const PurchaseData = () => {
                     </p>
                   </div>
                   <div className="flex items-center xl:ml-80 lg:ml-52 absolute">
-                    <Edit className="cursor-pointer mr-2" />
+                    <Edit
+                      className="cursor-pointer mr-2"
+                      onClick={() => {
+                        setSelectedGift(gift);
+                        setIsEdit(true);
+                      }}
+                    />
                     {gift.status ? (
                       <Trash
                         className="cursor-pointer"
-                        onClick={() => handleDelete(gift._id, gift.status)} // Pass id and current status to delete handler
+                        onClick={() => handleDelete(gift._id, gift.status)}
                       />
                     ) : (
                       <ArchiveRestore
                         className="cursor-pointer"
-                        onClick={() => handleDelete(gift._id, gift.status)} 
+                        onClick={() => handleDelete(gift._id, gift.status)}
                       />
                     )}
                   </div>
                 </div>
 
-                <p className=" text-gray-600 flex text-xl xl:text-lg lg:text-sm text-nowrap">
+                <p className="text-gray-600 flex text-xl xl:text-lg lg:text-sm text-nowrap">
                   <Package size={16} color="green" />
                   <span className="pl-2 lg:text-md">{gift.totalsales}</span>
                 </p>
@@ -113,13 +122,16 @@ const PurchaseData = () => {
               </div>
               <div className="flex items-center justify-center h-full">
                 <h1 className="text-2xl font-bold text-blue-600">
-                  ₹{gift.total.toLocaleString()}
+                  ₹{gift.grandtotal.toLocaleString()}
                 </h1>
               </div>
             </div>
           </div>
         ))}
       </div>
+      {isEdit && (
+        <EditPopup gift={selectedGift} onClose={() => setIsEdit(false)} />
+      )}
     </div>
   );
 };

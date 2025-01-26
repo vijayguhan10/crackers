@@ -139,7 +139,7 @@ exports.updateGiftBoxById = async (req, res) => {
         runValidators: true
       }
     );
-
+    console.log("updatedgiftbox : ",updatedGiftBox);
     if (!updatedGiftBox) {
       return res.status(404).json({ message: 'GiftBox not found!' });
     }

@@ -85,7 +85,9 @@ const RevenueChart = ({ currentMonth, monthlyRevenue }) => {
     <div className="bg-white p-6 rounded-xl shadow-sm w-full">
       <div className="mb-4">
         <h3 className="text-gray-500 text-sm">Monthly Revenue</h3>
-        <p className="text-2xl font-semibold mt-1">₹ {currentMonth}</p>
+        <p className="text-2xl font-semibold mt-1">
+          ₹ {currentMonth ? currentMonth.toFixed(2) : "0.00"}
+        </p>
       </div>
 
       {/* Chart container */}

@@ -4,7 +4,7 @@ import Publications from './Publications';
 import InvoiceTemplate from './InvoiceTemplate';
 const Index = () => {
   return (
-    <div className="ml-[16.7%] ">
+    <div className="ml-0% sm:ml-[18%]  ">
       <UserData />
       <div>
         <InvoiceTemplate />

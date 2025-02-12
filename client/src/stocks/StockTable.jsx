@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { Loader } from "lucide-react";
 import Popup from "./Popup";
 import loader from "../assets/Loader.gif";
+
 function StockTable() {
   const [showModal, setShowModal] = useState(false);
   const [newCracker, setNewCracker] = useState({
@@ -75,6 +76,7 @@ function StockTable() {
       event.target.value = "";
     }
   };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEditCracker((prev) => ({
@@ -83,6 +85,7 @@ function StockTable() {
     }));
     console.log("editing the crackers data :", editCracker);
   };
+
   const handleUpdate = async (crackerId) => {
     const token = localStorage.getItem("cracker_token");
 
@@ -108,22 +111,21 @@ function StockTable() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 ml-[16.7%]">
+    <div className="min-h-screen bg-gray-50 lg:ml-[16.7%]"> {/* Adjusted margin */}
       <header className="bg-[#4ADE80] text-white p-4">
         <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-2">
+          <div className="ml-20 sm:ml-0 flex flex-row items-center gap-2">
             <span className="text-2xl">🎆</span>
             <h1 className="text-2xl font-bold text-black">AVANTIKA CRACKERS</h1>
           </div>
           <div className="w-10 h-10 bg-blue-100 rounded-full"></div>
         </div>
       </header>
+
       <div className="container mx-auto p-4 flex flex-col lg:flex-row gap-6">
         <div className="lg:w-full">
           <div className="flex items-center gap-4 mb-6">
-            <h2 className="text-2xl font-bold flex items-center gap-2">
-              📝 Stocks
-            </h2>
+            <h2 className="text-2xl font-bold flex items-center gap-2">📝 Stocks</h2>
             <div className="flex-1">
               <input
                 type="text"
@@ -165,138 +167,109 @@ function StockTable() {
               <table className="w-full border border-gray-800">
                 <thead className="bg-gray-800 text-white">
                   <tr>
-                    <th className="p-4 text-center border border-gray-800">
-                      Image
-                    </th>
-                    <th className="p-4 text-center border border-gray-800">
-                      S.No
-                    </th>
-                    <th className="p-4 text-center border border-gray-800">
-                      Name
-                    </th>
-                    <th className="p-4 text-center border border-gray-800">
-                      Stock
-                    </th>
-                    <th className="p-4 text-center border border-gray-800">
-                      Price
-                    </th>
-                    <th className="p-4 text-center border border-gray-800">
-                      Total Sales
-                    </th>
-                    <th className="p-4 text-center border border-gray-800">
-                      Total Revenue
-                    </th>
-                    <th className="p-4 text-center border border-gray-800">
-                      Status
-                    </th>
-                    <th className="p-4 text-center border border-gray-800">
-                      Update Product
-                    </th>
+                    <th className="p-4 text-center border border-gray-800">Image</th>
+                    <th className="p-4 text-center border border-gray-800">S.No</th>
+                    <th className="p-4 text-center border border-gray-800">Name</th>
+                    <th className="p-4 text-center border border-gray-800">Stock</th>
+                    <th className="p-4 text-center border border-gray-800">Price</th>
+                    <th className="p-4 text-center border border-gray-800">Total Sales</th>
+                    <th className="p-4 text-center border border-gray-800">Total Revenue</th>
+                    <th className="p-4 text-center border border-gray-800">Status</th>
+                    <th className="p-4 text-center border border-gray-800">Update Product</th>
                   </tr>
                 </thead>
                 <tbody>
                   {Products
-                  .filter((cracker) =>
-                    cracker.name
-                      .toLowerCase()
-                      .includes(searchTerm.toLowerCase())
-                  ).map((cracker, index) => (
-                    <tr key={cracker._id} className="border border-gray-800">
-                      <td className="p-4 text-center border border-gray-800">
-                        <h1 className="text-2xl">{cracker.image}</h1>
-                      </td>
-                      <td className="p-4 text-center border border-gray-800">
-                        {index + 1}
-                      </td>
-                      <td className="p-4 text-center border border-gray-800">
-                        {editCracker && editCracker._id === cracker._id ? (
-                          <input
-                            type="text"
-                            name="name"
-                            value={editCracker.name}
-                            onChange={handleChange}
-                            className="w-full p-2 border border-gray-400"
-                          />
-                        ) : (
-                          cracker.name
-                        )}
-                      </td>
-                      <td className="p-4 text-center border border-gray-800">
-                        {editCracker && editCracker._id === cracker._id ? (
-                          <input
-                            type="number"
-                            name="stockavailable"
-                            value={editCracker.stockavailable}
-                            onChange={handleChange}
-                            className="w-full p-2 border border-gray-400"
-                          />
-                        ) : (
-                          cracker.stockavailable
-                        )}
-                      </td>
-                      <td className="p-4 text-center border border-gray-800">
-                        {editCracker && editCracker._id === cracker._id ? (
-                          <input
-                            type="number"
-                            name="price"
-                            value={editCracker.price}
-                            onChange={handleChange}
-                            className="w-full p-2 border border-gray-400"
-                          />
-                        ) : (
-                          `Rs. ${cracker.price}`
-                        )}
-                      </td>
-
-                      <td className="p-4 text-center border text-red-500 border-gray-800">
-                        {cracker.totalsales}
-                      </td>
-                      <td className="p-4 text-center border text-green-700 font-bold border-gray-800">
-                        20303
-                      </td>
-                      <td className="p-4 text-center border text-red-500 border-gray-800">
-                        {editCracker && editCracker._id === cracker._id ? (
-                          <select
-                            value={editCracker.status}
-                            onChange={handleChange}
-                            name="status"
-                            className="p-2 border rounded-lg"
-                          >
-                            <option value="none">status</option>
-                            <option value="true">Active</option>
-                            <option value="false">Inactive</option>
-                          </select>
-                        ) : (
-                          <span>
-                            {cracker.status === true ? "Active" : "Inactive"}
-                          </span>
-                        )}
-                      </td>
-                      <td className="items-center flex justify-center mt-4">
-                        {editCracker && editCracker._id === cracker._id ? (
-                          <button
-                            onClick={() => handleUpdate(cracker._id)}
-                            className="bg-[#6be196] text-black px-4 py-2 rounded-lg hover:bg-[#4ADE80]"
-                          >
-                            Save
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => setEditCracker(cracker)}
-                            className="bg-[#6be196] text-black px-4 py-2 rounded-lg hover:bg-[#4ADE80]"
-                          >
-                            Update
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                    .filter((cracker) =>
+                      cracker.name.toLowerCase().includes(searchTerm.toLowerCase())
+                    )
+                    .map((cracker, index) => (
+                      <tr key={cracker._id} className="border border-gray-800">
+                        <td className="p-4 text-center border border-gray-800">{cracker.image}</td>
+                        <td className="p-4 text-center border border-gray-800">{index + 1}</td>
+                        <td className="p-4 text-center border border-gray-800">
+                          {editCracker && editCracker._id === cracker._id ? (
+                            <input
+                              type="text"
+                              name="name"
+                              value={editCracker.name}
+                              onChange={handleChange}
+                              className="w-full p-2 border border-gray-400"
+                            />
+                          ) : (
+                            cracker.name
+                          )}
+                        </td>
+                        <td className="p-4 text-center border border-gray-800">
+                          {editCracker && editCracker._id === cracker._id ? (
+                            <input
+                              type="number"
+                              name="stockavailable"
+                              value={editCracker.stockavailable}
+                              onChange={handleChange}
+                              className="w-full p-2 border border-gray-400"
+                            />
+                          ) : (
+                            cracker.stockavailable
+                          )}
+                        </td>
+                        <td className="p-4 text-center border border-gray-800">
+                          {editCracker && editCracker._id === cracker._id ? (
+                            <input
+                              type="number"
+                              name="price"
+                              value={editCracker.price}
+                              onChange={handleChange}
+                              className="w-full p-2 border border-gray-400"
+                            />
+                          ) : (
+                            `Rs. ${cracker.price}`
+                          )}
+                        </td>
+                        <td className="p-4 text-center border text-red-500 border-gray-800">{cracker.totalsales}</td>
+                        <td className="p-4 text-center border text-green-700 font-bold border-gray-800">20303</td>
+                        <td className="p-4 text-center border text-red-500 border-gray-800">
+                          {editCracker && editCracker._id === cracker._id ? (
+                            <select
+                              value={editCracker.status}
+                              onChange={handleChange}
+                              name="status"
+                              className="p-2 border rounded-lg"
+                            >
+                              <option value="none">status</option>
+                              <option value="true">Active</option>
+                              <option value="false">Inactive</option>
+                            </select>
+                          ) : (
+                            <span>{cracker.status === true ? "Active" : "Inactive"}</span>
+                          )}
+                        </td>
+                        <td className="items-center flex justify-center mt-4">
+                          {editCracker && editCracker._id === cracker._id ? (
+                            <button
+                              onClick={() => handleUpdate(cracker._id)}
+                              className="bg-[#6be196] text-black px-4 py-2 rounded-lg hover:bg-[#4ADE80]"
+                            >
+                              Save
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => setEditCracker(cracker)}
+                              className="bg-[#6be196] text-black px-4 py-2 rounded-lg hover:bg-[#4ADE80]"
+                            >
+                              Update
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
           )}
         </div>
       </div>
+
       {showModal && (
         <Popup
           newCracker={newCracker}
@@ -324,4 +297,5 @@ function StockTable() {
     </div>
   );
 }
+
 export default StockTable;

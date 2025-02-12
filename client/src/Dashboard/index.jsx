@@ -8,7 +8,6 @@ import {
   LayoutDashboard
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
-import { createSidebar } from './SalesOverview';
 import StatCard from './StatCard';
 import RevenueChart from './RevenueChart';
 import SalesOverview from './SalesOverview';
@@ -62,14 +61,8 @@ function App({ userName }) {
 
       <div className="md:ml-64 p-6">
         <div className="flex justify-between items-center mb-6">
-          <button
-            className="md:hidden p-2 hover:bg-gray-200 rounded-lg"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <Menu className="w-6 h-6" />
-          </button>
           <div className="flex-1 ml-4 md:ml-0">
-            <h1 className="text-4xl">Welcome {userName}</h1>
+            <h1 className="ml-10 sm:ml-0 text-4xl">Welcome {userName}</h1>
           </div>
         </div>
 

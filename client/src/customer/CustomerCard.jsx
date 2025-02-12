@@ -15,7 +15,7 @@ export default function CustomerCard({ customer }) {
   };
 
   return (
-    <div className="bg-white rounded-lg  transition-shadow">
+    <div className="bg-white rounded-lg shadow-md p-4">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-900">{customer.name}</h3>
         <span

@@ -54,11 +54,11 @@ function Index() {
       <Loader size={50} className=" animate-spin" />
     </div>
   ) : (
-    <div className="ml-[16.7%] bg-gray-100 p-4 sm:p-6 lg:p-8">
+    <div className="ml-0 sm:ml-[16.7%] bg-gray-100 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <div className="flex flex-row justify-between">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">
+            <h1 className="text-3xl font-bold text-gray-900 mb-4 ml-11">
               Customer Dashboard
             </h1>
             <CreateCustomer />
@@ -73,7 +73,7 @@ function Index() {
             />
 
             <select
-              className="p-2 border rounded-lg"
+              className="p-2 border rounded-lg w-full sm:w-auto max-w-[200px] sm:max-w-[200px] text-sm sm:text-base truncate"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >

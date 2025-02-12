@@ -264,11 +264,11 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 ml-[16.7%] overflow-hidden ">
+    <div className="ml-[0%] min-h-screen bg-gray-50 sm:ml-[16.7%] overflow-hidden ">
       <div>
         <header className="bg-[#4ADE80] text-white p-4">
           <div className="container mx-auto flex justify-between items-center">
-            <div className="flex items-center gap-2">
+            <div className="ml-16  flex items-center gap-2">
               <span className="text-2xl">
                 <FaMoneyBill color="black" />
               </span>
@@ -283,8 +283,7 @@ function App() {
       <div className="container mx-auto p-4 flex flex-col lg:flex-row gap-6">
         {showPopup && (
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-40"
-            style={{ marginLeft: '16.7%' }}
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 ml-[0%] sm:ml-[16.17%]"
             onClick={() => setShowPopup(false)}
           />
         )}

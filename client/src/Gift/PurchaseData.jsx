@@ -82,14 +82,14 @@ const PurchaseData = () => {
               <div className="flex flex-col">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
-                    <p className="text-sm text-gray-600 flex">
+                    <p className="text-sm text-gray-600 flex items-center">
                       <User size={16} color="green" />
                       <span className="pl-2 font-extrabold text-xl xl:text-2xl lg:text-sm text-nowrap">
                         {gift.name}
                       </span>
                     </p>
                   </div>
-                  <div className="flex items-center xl:ml-80 lg:ml-52 absolute">
+                  <div className="flex items-center ml-2">
                     <Edit
                       className="cursor-pointer mr-2"
                       onClick={() => {

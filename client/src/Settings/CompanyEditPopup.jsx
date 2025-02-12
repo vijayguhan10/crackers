@@ -13,20 +13,14 @@ const CompanyEditPopup = ({
       const token = localStorage.getItem('cracker_token');
       const filteredData = Object.entries(editCompanyData).reduce(
         (acc, [key, value]) => {
-          if (value !== '') {
-            acc[key] = value;
-          }
+          if (value !== '') acc[key] = value;
           return acc;
         },
         {}
       );
-      await axios.put(
-        `${process.env.REACT_APP_BASEURL}/company/`,
-        filteredData,
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
+      await axios.put(`${process.env.REACT_APP_BASEURL}/company/`, filteredData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setShowEditCompanyPopup(false);
       fetchCompanyData();
     } catch (err) {
@@ -38,230 +32,68 @@ const CompanyEditPopup = ({
   return (
     <>
       {showEditCompanyPopup && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-1">
-          <div className="bg-white p-6 rounded-lg w-[40%]">
-            <h2 className="text-xl font-bold mb-4">Edit Company Details</h2>
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-2">
+          <div className="bg-white p-6 rounded-lg w-[95%] md:w-[60%] lg:w-[40%] max-h-[90vh] overflow-y-auto">
+            <h2 className="text-xl font-bold mb-4 text-center">Edit Company Details</h2>
             <form className="space-y-4">
-              <div className="flex items-center">
-                <label className="w-40 text-gray-700 font-medium">
-                  Company Name:
-                </label>
-                <input
-                  type="text"
-                  placeholder="Company Name"
-                  value={editCompanyData.companyname}
-                  onChange={(e) =>
-                    setEditCompanyData({
-                      ...editCompanyData,
-                      companyname: e.target.value
-                    })
-                  }
-                  className="border w-full p-2"
-                />
-              </div>
-              <div className="flex items-center">
-                <label className="w-40 text-gray-700 font-medium">
-                  Tagline:
-                </label>
-                <input
-                  type="text"
-                  placeholder="Tagline"
-                  value={editCompanyData.companytagline}
-                  onChange={(e) =>
-                    setEditCompanyData({
-                      ...editCompanyData,
-                      companytagline: e.target.value
-                    })
-                  }
-                  className="border w-full p-2"
-                />
-              </div>
-              <div className="flex items-center">
-                <label className="w-40 text-gray-700 font-medium">
-                  Person Contact:
-                </label>
-                <input
-                  type="text"
-                  placeholder="Person Contact"
-                  value={editCompanyData.personcontact}
-                  onChange={(e) =>
-                    setEditCompanyData({
-                      ...editCompanyData,
-                      personcontact: e.target.value
-                    })
-                  }
-                  className="border w-full p-2"
-                />
-              </div>
-              <div className="flex items-center">
-                <label className="w-40 text-gray-700 font-medium">
-                  Shop Address:
-                </label>
-                <input
-                  type="text"
-                  placeholder="Shop Address"
-                  value={editCompanyData.shopaddress}
-                  onChange={(e) =>
-                    setEditCompanyData({
-                      ...editCompanyData,
-                      shopaddress: e.target.value
-                    })
-                  }
-                  className="border w-full p-2"
-                />
-              </div>
-              <div className="flex items-center">
-                <label className="w-40 text-gray-700 font-medium">
-                  Payment Terms:
-                </label>
-                <input
-                  type="text"
-                  placeholder="Payment Terms"
-                  value={editCompanyData.paymentterms}
-                  onChange={(e) =>
-                    setEditCompanyData({
-                      ...editCompanyData,
-                      paymentterms: e.target.value
-                    })
-                  }
-                  className="border w-full p-2"
-                />
-              </div>
+              {[
+                { label: 'Company Name', key: 'companyname' },
+                { label: 'Tagline', key: 'companytagline' },
+                { label: 'Person Contact', key: 'personcontact' },
+                { label: 'Shop Address', key: 'shopaddress' },
+                { label: 'Payment Terms', key: 'paymentterms' }
+              ].map(({ label, key }) => (
+                <div key={key} className="flex flex-col md:flex-row items-start md:items-center gap-2">
+                  <label className="md:w-40 text-gray-700 font-medium">{label}:</label>
+                  <input
+                    type="text"
+                    placeholder={label}
+                    value={editCompanyData[key] || ''}
+                    onChange={(e) => setEditCompanyData({ ...editCompanyData, [key]: e.target.value })}
+                    className="border w-full p-2 rounded"
+                  />
+                </div>
+              ))}
 
               <div className="border-t pt-4 mt-4">
-                <h3 className="font-medium text-gray-700 mb-2">Bank Details</h3>
-                <div className="flex items-center">
-                  <label className="w-40 text-gray-700 font-medium">
-                    Account Name:
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Account Name"
-                    value={editCompanyData.bankdetails.accountname}
-                    onChange={(e) =>
-                      setEditCompanyData({
-                        ...editCompanyData,
-                        bankdetails: {
-                          ...editCompanyData.bankdetails,
-                          accountname: e.target.value
-                        }
-                      })
-                    }
-                    className="border w-full p-2"
-                  />
-                </div>
-                <div className="flex items-center">
-                  <label className="w-40 text-gray-700 font-medium">
-                    Account No:
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Account Number"
-                    value={editCompanyData.bankdetails.accountno}
-                    onChange={(e) =>
-                      setEditCompanyData({
-                        ...editCompanyData,
-                        bankdetails: {
-                          ...editCompanyData.bankdetails,
-                          accountno: e.target.value
-                        }
-                      })
-                    }
-                    className="border w-full p-2"
-                  />
-                </div>
-                <div className="flex items-center">
-                  <label className="w-40 text-gray-700 font-medium">
-                    Account Type:
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Account Type"
-                    value={editCompanyData.bankdetails.accounttype}
-                    onChange={(e) =>
-                      setEditCompanyData({
-                        ...editCompanyData,
-                        bankdetails: {
-                          ...editCompanyData.bankdetails,
-                          accounttype: e.target.value
-                        }
-                      })
-                    }
-                    className="border w-full p-2"
-                  />
-                </div>
-                <div className="flex items-center">
-                  <label className="w-40 text-gray-700 font-medium">
-                    Bank Name:
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Bank Name"
-                    value={editCompanyData.bankdetails.bankname}
-                    onChange={(e) =>
-                      setEditCompanyData({
-                        ...editCompanyData,
-                        bankdetails: {
-                          ...editCompanyData.bankdetails,
-                          bankname: e.target.value
-                        }
-                      })
-                    }
-                    className="border w-full p-2"
-                  />
-                </div>
-                <div className="flex items-center">
-                  <label className="w-40 text-gray-700 font-medium">
-                    Branch:
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Branch"
-                    value={editCompanyData.bankdetails.branch}
-                    onChange={(e) =>
-                      setEditCompanyData({
-                        ...editCompanyData,
-                        bankdetails: {
-                          ...editCompanyData.bankdetails,
-                          branch: e.target.value
-                        }
-                      })
-                    }
-                    className="border w-full p-2"
-                  />
-                </div>
-                <div className="flex items-center">
-                  <label className="w-40 text-gray-700 font-medium">
-                    IFSC:
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="IFSC"
-                    value={editCompanyData.bankdetails.ifsc}
-                    onChange={(e) =>
-                      setEditCompanyData({
-                        ...editCompanyData,
-                        bankdetails: {
-                          ...editCompanyData.bankdetails,
-                          ifsc: e.target.value
-                        }
-                      })
-                    }
-                    className="border w-full p-2"
-                  />
-                </div>
+                <h3 className="font-medium text-gray-700 mb-2 text-center">Bank Details</h3>
+                {[
+                  { label: 'Account Name', key: 'accountname' },
+                  { label: 'Account No', key: 'accountno' },
+                  { label: 'Account Type', key: 'accounttype' },
+                  { label: 'Bank Name', key: 'bankname' },
+                  { label: 'Branch', key: 'branch' },
+                  { label: 'IFSC', key: 'ifsc' }
+                ].map(({ label, key }) => (
+                  <div key={key} className="flex flex-col md:flex-row items-start md:items-center gap-2">
+                    <label className="md:w-40 text-gray-700 font-medium">{label}:</label>
+                    <input
+                      type="text"
+                      placeholder={label}
+                      value={editCompanyData.bankdetails?.[key] || ''}
+                      onChange={(e) =>
+                        setEditCompanyData({
+                          ...editCompanyData,
+                          bankdetails: { ...editCompanyData.bankdetails, [key]: e.target.value }
+                        })
+                      }
+                      className="border w-full p-2 rounded"
+                    />
+                  </div>
+                ))}
               </div>
             </form>
-            <div className="flex justify-end mt-4">
+
+            <div className="flex flex-col sm:flex-row justify-end mt-4 gap-2">
               <button
                 onClick={() => setShowEditCompanyPopup(false)}
-                className="bg-gray-300 text-gray-700 py-2 px-4 rounded-lg mr-2"
+                className="bg-gray-300 text-gray-700 py-2 px-4 rounded-lg w-full sm:w-auto"
               >
                 Cancel
               </button>
               <button
                 onClick={handleEditCompany}
-                className="bg-green-600 text-white py-2 px-4 rounded-lg"
+                className="bg-green-600 text-white py-2 px-4 rounded-lg w-full sm:w-auto"
               >
                 Save
               </button>

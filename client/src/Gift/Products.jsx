@@ -166,7 +166,7 @@ function App({ giftData }) {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow overflow-x-auto h-[75%] overflow-y-scroll custom-scrollbar">
+          <div className="bg-white rounded-lg shadow overflow-auto h-[450px] sm:h-[600px] custom-scrollbar">
             <table className="w-full">
               <thead className="bg-gray-800 sticky top-0 z-10 text-white">
                 <tr>
@@ -182,12 +182,10 @@ function App({ giftData }) {
               <tbody className="text-center items-center">
                 {mergedProducts
                   .filter((cracker) =>
-                    cracker.name
-                      .toLowerCase()
-                      .includes(searchTerm.toLowerCase())
+                    cracker.name.toLowerCase().includes(searchTerm.toLowerCase())
                   )
                   .map((cracker, index) => (
-                    <tr key={cracker._id} className="border-b ">
+                    <tr key={cracker._id} className="border-b">
                       <td className="p-4 text-2xl">{cracker.image}</td>
                       <td className="p-4">{index + 1}</td>
                       <td className="p-4">{cracker.name}</td>
@@ -216,6 +214,7 @@ function App({ giftData }) {
               </tbody>
             </table>
           </div>
+
         </div>
         <FinalGift
           giftData={giftData}

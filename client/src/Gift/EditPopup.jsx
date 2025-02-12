@@ -1,12 +1,11 @@
-// EditPopup.jsx
 import React from "react";
 import Products from "./Products";
 
 const EditPopup = ({ gift, onClose }) => {
-  console.log("passsed the necessary gift for edit : ", gift);
+  console.log("Passed the necessary gift for edit:", gift);
   return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white p-6 rounded-lg w-[80%] ml-52 h-[90%] flex flex-col">
+      <div className="bg-white p-6 rounded-lg max-w-[90%] md:w-[80%] h-[90%] max-h-[90vh] flex flex-col">
         <div className="flex justify-between items-center mb-4 pb-2 border-b">
           <h2 className="text-xl font-bold">Edit Gift</h2>
           <button

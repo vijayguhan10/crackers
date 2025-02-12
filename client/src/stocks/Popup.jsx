@@ -2,10 +2,11 @@ import React from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 const Popup = ({ newCracker, setNewCracker, getProducts, setShowModal }) => {
   return (
     <div>
-      <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50">
+      <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
         <div className="bg-white p-6 rounded-lg shadow-lg w-96">
           <h3 className="text-xl font-bold mb-4">Add Cracker</h3>
           <input

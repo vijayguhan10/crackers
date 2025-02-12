@@ -4,9 +4,9 @@ import Header from '../components/Header';
 import GiftProducts from './Products';
 const GiftIndex = () => {
   return (
-    <div className="ml-[18%] mt-6 ">
+    <div className="ml-0% sm:ml-[18%] mt-0 ">
       <div className="">
-        <Header />
+          <Header />
         <GiftProducts />
         <PurchaseData />
       </div>

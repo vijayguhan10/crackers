@@ -103,9 +103,9 @@ const FinalGift = ({
   };
 
   return (
-    <div className="flex items-center justify-center h-screen">
-      <div className="lg:w-full h-full">
-        <div className="bg-white rounded-lg shadow p-6 h-full">
+    <div className="flex items-center justify-center min-h-screen px-4 sm:px-2">
+      <div className="w-full max-w-4xl">
+        <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
             <Wallet /> Final Gift Evaluation
           </h2>
@@ -165,7 +165,7 @@ const FinalGift = ({
                   className="w-full p-2 border rounded"
                 />
               </div>
-
+  
               <div className="mb-4">
                 <label htmlFor="GiftBoxCount" className="block font-bold mb-2">
                   Enter the Stocks of the GiftBox
@@ -188,7 +188,7 @@ const FinalGift = ({
                   className="w-full p-2 border rounded"
                 />
               </div>
-
+  
               <div className="flex justify-between items-center xl:w-full">
                 <div className="flex items-center w-1/2">
                   <span className="text-gray-700 font-medium">TOTAL:</span>
@@ -196,7 +196,7 @@ const FinalGift = ({
                     Rs. {total}
                   </span>
                 </div>
-
+  
                 <div className="flex justify items-center">
                   <span className="text-gray-800 font-bold text-sm text-nowrap">
                     GRAND TOTAL:
@@ -240,7 +240,7 @@ const FinalGift = ({
       </div>
       <ToastContainer />
     </div>
-  );
+  );  
 };
 
 export default FinalGift;

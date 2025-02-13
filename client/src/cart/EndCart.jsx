@@ -123,7 +123,7 @@ const EndCart = ({
 
   return (
     <div className="flex items-center justify-center h-screen">
-      <div className="lg:w-full h-full">
+     <div className="w-full sm:w-full px-2 sm:px-6">
         <div className="bg-white rounded-lg shadow p-6 h-full">
           <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
             🛒 CART

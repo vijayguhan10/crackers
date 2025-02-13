@@ -68,8 +68,8 @@ const PurchaseData = () => {
   };
 
   return (
-    <div>
-      <h1 className="text-4xl mt-3 mb-3">Gift Sales Record</h1>
+    <div className="mx-4 p-4">
+      <h1 className="text-4xl mt-3 mb-3 text-center">Gift Sales Record</h1>
       <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-6">
         {GiftBox.map((gift) => (
           <div
@@ -110,7 +110,7 @@ const PurchaseData = () => {
                     )}
                   </div>
                 </div>
-
+  
                 <p className="text-gray-600 flex text-xl xl:text-lg lg:text-sm text-nowrap">
                   <Package size={16} color="green" />
                   <span className="pl-2 lg:text-md">{gift.totalsales}</span>
@@ -133,7 +133,7 @@ const PurchaseData = () => {
         <EditPopup gift={selectedGift} onClose={() => setIsEdit(false)} />
       )}
     </div>
-  );
+  );  
 };
 
 export default PurchaseData;

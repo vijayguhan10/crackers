@@ -62,11 +62,15 @@ const CreateCustomer = () => {
     <>
       <ToastContainer />
       <button
-        onClick={openPopup}
-        className="px-6 py-2 text-white mb-2 bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none"
-      >
-        Add customer
-      </button>
+  onClick={openPopup}
+  className="mb-6 px-6 py-2 text-white  bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none 
+            sm:px-4 sm:py-[4px] md:px-6 md:py-2 lg:px-8 lg:py-3 text-sm sm:text-xs md:text-sm lg:text-base"
+>
+  Add customer
+</button>
+
+
+
 
       {isOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">

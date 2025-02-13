@@ -166,7 +166,7 @@ function App({ giftData }) {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow overflow-auto h-[450px] sm:h-[600px] custom-scrollbar">
+          <div className="bg-white rounded-lg shadow overflow-auto h-[450px] sm:h-[900px] custom-scrollbar">
             <table className="w-full">
               <thead className="bg-gray-800 sticky top-0 z-10 text-white">
                 <tr>

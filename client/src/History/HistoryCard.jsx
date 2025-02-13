@@ -54,7 +54,8 @@ const HistoryCard = () => {
           placeholder="Search by name or phone number..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-400"
+          className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-400 
+             mx-4 sm:mx-2"
         />
       </div>
 
